@@ -1,0 +1,85 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  passwordHash String
+  role         String         @default("USER") // "ADMIN" or "USER"
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  poojaRequests PoojaRequest[]
+}
+
+model PoojaCategory {
+  id          String      @id @default(uuid())
+  nameEnglish String
+  nameKannada String
+  isActive    Boolean     @default(true)
+  items       PoojaItem[]
+}
+
+model PoojaItem {
+  id              String        @id @default(uuid())
+  nameEnglish     String
+  nameKannada     String
+  categoryId      String
+  category        PoojaCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  defaultQuantity String?
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model GalleryImage {
+  id             String   @id @default(uuid())
+  imageUrl       String
+  captionEnglish String
+  captionKannada String
+  category       String   @default("Pooja Ceremonies")
+  sortOrder      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+}
+
+model PoojaRequest {
+  id            String             @id @default(uuid())
+  userId        String?
+  user          User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  poojaName     String
+  poojaDate     String
+  poojaTime     String
+  personName    String
+  gothra        String?
+  nakshatra     String?
+  contactNumber String?
+  location      String?
+  notes         String?
+  createdAt     DateTime           @default(now())
+  items         PoojaRequestItem[]
+}
+
+model PoojaRequestItem {
+  id                      String       @id @default(uuid())
+  poojaRequestId          String
+  poojaRequest            PoojaRequest @relation(fields: [poojaRequestId], references: [id], onDelete: Cascade)
+  poojaItemId             String?
+  itemNameEnglishSnapshot String
+  itemNameKannadaSnapshot String
+  quantity                String?
+}
+
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+

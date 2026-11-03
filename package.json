@@ -1,0 +1,11 @@
+{
+  "name": "pooja-services",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "client": "npm --prefix client run dev",
+    "server": "npm --prefix server run dev",
+    "install:all": "npm.cmd --prefix client install && npm.cmd --prefix server install"
+  }
+}
+

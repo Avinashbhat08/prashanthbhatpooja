@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-spiritual-cream text-neutral-900;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Ensure Kannada Unicode glyphs render cleanly */
+  .font-kannada {
+    font-family: 'Noto Sans Kannada', system-ui, sans-serif;
+  }
+}
+
+/* Print Specific Rules for Clean A4 Output */
+@media print {
+  header, footer, nav, button, .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  #pooja-printable-document {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 12mm 15mm;
+  }
+}
+

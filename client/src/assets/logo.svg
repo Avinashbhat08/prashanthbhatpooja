@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Radiant Gradients -->
+    <linearGradient id="chakraGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3B0" />
+      <stop offset="30%" stop-color="#FFD700" />
+      <stop offset="70%" stop-color="#DAA520" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+
+    <radialGradient id="sacredAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFF8E7" />
+      <stop offset="45%" stop-color="#FFE0B2" />
+      <stop offset="80%" stop-color="#FF9800" />
+      <stop offset="100%" stop-color="#800020" />
+    </radialGradient>
+
+    <linearGradient id="maroonRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9E2A2B" />
+      <stop offset="50%" stop-color="#5C0612" />
+      <stop offset="100%" stop-color="#38040E" />
+    </linearGradient>
+
+    <linearGradient id="saffronGanesha" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE082" />
+      <stop offset="30%" stop-color="#FF6D00" />
+      <stop offset="75%" stop-color="#D84315" />
+      <stop offset="100%" stop-color="#7B1113" />
+    </linearGradient>
+
+    <!-- Sudarshana Chakra 16 Flame Blades Template -->
+    <g id="chakraFlames">
+      <!-- 16 Serrated Sacred Flames of Sudarshana -->
+      <path d="M 250,15 L 262,48 C 265,58 258,68 250,68 C 242,68 235,58 238,48 Z" fill="url(#chakraGold)" stroke="#800020" stroke-width="1.5" />
+      <circle cx="250" cy="42" r="3.5" fill="#800020" />
+    </g>
+  </defs>
+
+  <!-- Background Base Aura -->
+  <circle cx="250" cy="250" r="242" fill="url(#sacredAura)" />
+
+  <!-- Outer Sudarshana Fire Ring (16 Sacred Points) -->
+  <g id="flamesRing">
+    <use href="#chakraFlames" />
+    <use href="#chakraFlames" transform="rotate(22.5 250 250)" />
+    <use href="#chakraFlames" transform="rotate(45 250 250)" />
+    <use href="#chakraFlames" transform="rotate(67.5 250 250)" />
+    <use href="#chakraFlames" transform="rotate(90 250 250)" />
+    <use href="#chakraFlames" transform="rotate(112.5 250 250)" />
+    <use href="#chakraFlames" transform="rotate(135 250 250)" />
+    <use href="#chakraFlames" transform="rotate(157.5 250 250)" />
+    <use href="#chakraFlames" transform="rotate(180 250 250)" />
+    <use href="#chakraFlames" transform="rotate(202.5 250 250)" />
+    <use href="#chakraFlames" transform="rotate(225 250 250)" />
+    <use href="#chakraFlames" transform="rotate(247.5 250 250)" />
+    <use href="#chakraFlames" transform="rotate(270 250 250)" />
+    <use href="#chakraFlames" transform="rotate(292.5 250 250)" />
+    <use href="#chakraFlames" transform="rotate(315 250 250)" />
+    <use href="#chakraFlames" transform="rotate(337.5 250 250)" />
+  </g>
+
+  <!-- Deep Maroon Ring Outer Rim -->
+  <circle cx="250" cy="250" r="202" fill="url(#maroonRim)" stroke="url(#chakraGold)" stroke-width="5" />
+
+  <!-- Sudarshana Chakra Spoke Petals (12 Sunburst Petals) -->
+  <g opacity="0.45">
+    <circle cx="250" cy="250" r="185" fill="none" stroke="#FFD700" stroke-width="3" stroke-dasharray="8,6" />
+    <circle cx="250" cy="250" r="172" fill="none" stroke="#FFD700" stroke-width="1.5" />
+    <!-- 24 Sacred Chakra Rays -->
+    <path d="M 250 78 L 250 172 M 250 328 L 250 422 M 78 250 L 172 250 M 328 250 L 422 250" stroke="#FFD700" stroke-width="3" />
+    <path d="M 128 128 L 195 195 M 305 305 L 372 372 M 372 128 L 305 195 M 195 305 L 128 372" stroke="#FFD700" stroke-width="3" />
+  </g>
+
+  <!-- Inner Sacred Golden Lotus Mandala -->
+  <circle cx="250" cy="250" r="150" fill="#FFF9E6" stroke="url(#chakraGold)" stroke-width="6" />
+  <circle cx="250" cy="250" r="144" fill="none" stroke="#7B1113" stroke-width="2" />
+  <circle cx="250" cy="250" r="138" fill="#FFF4D4" />
+
+  <!-- Decorative Sacred Beads on inner perimeter -->
+  <g fill="#B8860B">
+    <circle cx="250" cy="118" r="3" />
+    <circle cx="316" cy="136" r="3" />
+    <circle cx="366" cy="184" r="3" />
+    <circle cx="382" cy="250" r="3" />
+    <circle cx="366" cy="316" r="3" />
+    <circle cx="316" cy="364" r="3" />
+    <circle cx="250" cy="382" r="3" />
+    <circle cx="184" cy="364" r="3" />
+    <circle cx="134" cy="316" r="3" />
+    <circle cx="118" cy="250" r="3" />
+    <circle cx="134" cy="184" r="3" />
+    <circle cx="184" cy="136" r="3" />
+  </g>
+
+  <!-- ============================================== -->
+  <!-- CENTRAL REVERED FIGURE: LORD GANESHA -->
+  <!-- ============================================== -->
+  <g transform="translate(0, -6)">
+    <!-- Divine Mukuta (Crown) -->
+    <path d="M 230,140 
+             Q 250,116 270,140 
+             L 282,176 
+             Q 250,180 218,176 Z" 
+          fill="url(#chakraGold)" stroke="#7B1113" stroke-width="3.5" />
+    
+    <!-- Crown Finial & Gem -->
+    <path d="M 245,134 L 250,118 L 255,134 Z" fill="#E65100" stroke="#7B1113" stroke-width="1.5" />
+    <circle cx="250" cy="115" r="4.5" fill="#FFD700" stroke="#7B1113" stroke-width="1.5" />
+    <circle cx="250" cy="154" r="5" fill="#7B1113" />
+
+    <!-- Left Large Ear (Surpakarna) -->
+    <path d="M 220,182 
+             C 174,180 156,215 166,248 
+             C 176,276 210,270 224,260" 
+          fill="none" stroke="url(#saffronGanesha)" stroke-width="9" stroke-linecap="round" />
+    <path d="M 180,214 C 180,240 200,248 212,246" fill="none" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" />
+
+    <!-- Right Large Ear -->
+    <path d="M 280,182 
+             C 326,180 344,215 334,248 
+             C 324,276 290,270 276,260" 
+          fill="none" stroke="url(#saffronGanesha)" stroke-width="9" stroke-linecap="round" />
+    <path d="M 320,214 C 320,240 300,248 288,246" fill="none" stroke="#D4AF37" stroke-width="3.5" stroke-linecap="round" />
+
+    <!-- Head & Holy Brow (Mastaka) -->
+    <path d="M 222,184 
+             C 230,172 270,172 278,184 
+             C 285,198 286,218 280,232 
+             C 272,250 262,260 256,280" 
+          fill="none" stroke="url(#saffronGanesha)" stroke-width="11" stroke-linecap="round" />
+
+    <!-- Sacred Trunk (Vakratunda curving gracefully to Left with sacred Modaka) -->
+    <path d="M 256,275 
+             C 252,305 244,328 226,344 
+             C 206,358 178,348 184,324 
+             C 188,304 212,305 216,318 
+             C 218,326 212,332 206,330" 
+          fill="none" stroke="url(#saffronGanesha)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Divine Modaka (Sweet in trunk) -->
+    <circle cx="206" cy="318" r="9" fill="url(#chakraGold)" stroke="#7B1113" stroke-width="2" />
+    <circle cx="204" cy="315" r="2" fill="#E65100" />
+
+    <!-- Sacred Tusk (Ekadanta - Right Tusk intact) -->
+    <path d="M 268,258 L 282,268 L 268,265 Z" fill="#FFFFFF" stroke="#7B1113" stroke-width="2" />
+
+    <!-- Sacred Broken Left Tusk -->
+    <line x1="234" y1="258" x2="228" y2="263" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+
+    <!-- Gentle Divine Eye -->
+    <path d="M 264,212 Q 272,216 270,222 Q 262,220 264,212 Z" fill="#7B1113" />
+    <circle cx="267" cy="216" r="1.5" fill="#FFFFFF" />
+
+    <!-- Sacred Red Tilaka / Tripundra / Chandana on forehead -->
+    <!-- Center Vermilion Vertical Stroke -->
+    <path d="M 250,188 L 250,222" stroke="#B71C1C" stroke-width="5" stroke-linecap="round" />
+    <!-- Golden Sandalwood Crescent Base -->
+    <path d="M 241,215 Q 250,226 259,215" fill="none" stroke="#FFD700" stroke-width="4.5" stroke-linecap="round" />
+    <!-- Center Holy Bindi/Kasturi Dot -->
+    <circle cx="250" cy="210" r="3.5" fill="#FFC107" />
+    <circle cx="250" cy="210" r="2" fill="#B71C1C" />
+
+    <!-- Abhaya Mudra / Sacred Om Shading Motif -->
+    <path d="M 284,286 
+             C 298,284 314,295 310,314 
+             C 306,330 286,336 270,332" 
+          fill="none" stroke="url(#saffronGanesha)" stroke-width="7" stroke-linecap="round" />
+  </g>
+</svg>
