@@ -80,13 +80,13 @@ export const GalleryPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Category Filter Pills */}
-        <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2">
+        {/* Category Filter Pills (Mobile friendly horizontal scroll) */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none justify-start sm:justify-center px-1">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+              className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center flex-shrink-0 ${
                 selectedCategory === cat
                   ? 'bg-spiritual-maroon text-white shadow-md'
                   : 'bg-white text-neutral-700 hover:bg-spiritual-cream-100 border border-spiritual-gold/30'
@@ -106,7 +106,7 @@ export const GalleryPage: React.FC = () => {
             </p>
           </div>
         ) : errorMessage && images.length === 0 ? (
-          <div className="bg-white rounded-3xl p-10 text-center border border-spiritual-gold/30 max-w-md mx-auto shadow-sm space-y-4">
+          <div className="bg-white rounded-3xl p-8 sm:p-10 text-center border border-spiritual-gold/30 max-w-md mx-auto shadow-sm space-y-4">
             <AlertCircle className="w-12 h-12 text-spiritual-gold mx-auto" />
             <div>
               <h3 className="text-lg font-serif font-bold text-spiritual-maroon">
@@ -120,13 +120,13 @@ export const GalleryPage: React.FC = () => {
             </div>
             <button
               onClick={() => setSelectedCategory(selectedCategory)}
-              className="inline-flex items-center px-4 py-2 bg-spiritual-maroon text-white text-xs font-bold rounded-full hover:bg-spiritual-maroon-dark transition"
+              className="inline-flex items-center px-5 py-2.5 bg-spiritual-maroon text-white text-xs font-bold rounded-full hover:bg-spiritual-maroon-dark transition active:scale-95"
             >
               {language === 'kn' ? 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ' : 'Retry'}
             </button>
           </div>
         ) : images.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center border border-spiritual-gold/30 max-w-md mx-auto shadow-sm">
+          <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-spiritual-gold/30 max-w-md mx-auto shadow-sm">
             <AlertCircle className="w-12 h-12 text-spiritual-gold mx-auto mb-3" />
             <h3 className="text-lg font-serif font-bold text-spiritual-maroon mb-1">
               {language === 'kn' ? 'ಇನ್ನೂ ಯಾವುದೇ ಗ್ಯಾಲರಿ ಚಿತ್ರಗಳು ಲಭ್ಯವಿಲ್ಲ.' : 'No gallery images available yet.'}
@@ -138,7 +138,7 @@ export const GalleryPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 min-[375px]:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
             {images.map((img) => (
               <GalleryCard
                 key={img.id}

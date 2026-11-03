@@ -98,7 +98,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm text-neutral-700">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-spiritual-saffron flex-shrink-0 mt-0.5" />
-                <span className="leading-snug">
+                <span className="leading-snug break-words text-xs sm:text-sm">
                   #42, 5th Cross, Kempe Gowda Layout, N. Nagennahalli, R.K. Hegde Nagar, Bangalore North, Karnataka - 560077
                 </span>
               </li>
@@ -106,7 +106,7 @@ export const Footer: React.FC = () => {
                 <Phone className="w-4 h-4 text-spiritual-saffron flex-shrink-0" />
                 <a
                   href="tel:9242359692"
-                  className="font-semibold text-spiritual-maroon hover:text-spiritual-saffron transition"
+                  className="font-bold text-spiritual-maroon hover:text-spiritual-saffron transition text-sm sm:text-base py-1"
                 >
                   9242359692
                 </a>
@@ -116,7 +116,7 @@ export const Footer: React.FC = () => {
                   href="https://maps.google.com/?q=N.+Nagennahalli,+R.K.+Hegde+Nagar,+Bangalore+560077"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 bg-spiritual-saffron text-white rounded-md hover:bg-spiritual-maroon transition shadow-sm"
+                  className="min-h-[44px] inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 bg-spiritual-saffron text-white rounded-xl hover:bg-spiritual-maroon transition shadow-sm active:scale-95"
                 >
                   <MapPin className="w-3.5 h-3.5" />
                   <span>Google Maps Directions</span>

@@ -167,11 +167,11 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
             </h3>
           </div>
 
-          <div className="flex items-center flex-wrap gap-2">
+          <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
             <button
               onClick={handleDownload}
               disabled={isGenerating}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-spiritual-gold text-spiritual-maroon-dark text-xs sm:text-sm font-bold rounded-lg hover:bg-spiritual-gold-light transition shadow disabled:opacity-50"
+              className="min-h-[40px] flex items-center gap-1.5 px-3 py-1.5 bg-spiritual-gold text-spiritual-maroon-dark text-xs sm:text-sm font-bold rounded-lg hover:bg-spiritual-gold-light transition shadow disabled:opacity-50 active:scale-95"
             >
               <Download className="w-4 h-4" />
               <span>{isGenerating ? 'Processing...' : t('btn_download_pdf')}</span>
@@ -180,7 +180,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
             <button
               onClick={handleShare}
               disabled={isGenerating}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-white/30 transition shadow disabled:opacity-50"
+              className="min-h-[40px] flex items-center gap-1.5 px-3 py-1.5 bg-white/20 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-white/30 transition shadow disabled:opacity-50 active:scale-95"
             >
               <Share2 className="w-4 h-4" />
               <span>{t('btn_share_pdf')}</span>
@@ -188,7 +188,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
             <button
               onClick={handleWhatsAppShare}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-emerald-700 transition shadow"
+              className="min-h-[40px] flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-emerald-700 transition shadow active:scale-95"
             >
               <MessageCircle className="w-4 h-4" />
               <span>{t('btn_whatsapp_share')}</span>
@@ -196,15 +196,17 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
             <button
               onClick={handlePrint}
-              className="p-2 text-white/80 hover:text-white rounded-lg hover:bg-white/10 transition"
+              className="min-h-[40px] min-w-[40px] flex items-center justify-center p-2 text-white/80 hover:text-white rounded-lg hover:bg-white/10 transition"
               title="Print directly"
+              aria-label="Print"
             >
               <Printer className="w-4 h-4" />
             </button>
 
             <button
               onClick={onClose}
-              className="p-1.5 text-white/80 hover:text-white rounded-lg hover:bg-white/10 transition ml-2"
+              className="min-h-[40px] min-w-[40px] flex items-center justify-center p-1.5 text-white/80 hover:text-white rounded-lg hover:bg-white/10 transition"
+              aria-label="Close"
             >
               <X className="w-6 h-6" />
             </button>
@@ -212,12 +214,12 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
         </div>
 
         {/* Scrollable Preview Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center bg-neutral-200">
+        <div className="flex-1 overflow-y-auto p-2 sm:p-8 flex justify-center bg-neutral-200 overflow-x-auto">
           {/* A4 Printable Document Container */}
           <div
             ref={pdfContainerRef}
             id="pooja-printable-document"
-            className="w-full max-w-[800px] bg-white p-8 sm:p-12 shadow-2xl rounded-sm text-neutral-900 font-sans border-2 border-spiritual-gold/40 relative"
+            className="w-full max-w-[800px] bg-white p-4 sm:p-12 shadow-2xl rounded-sm text-neutral-900 font-sans border-2 border-spiritual-gold/40 relative"
             style={{ minHeight: '1050px' }}
           >
             {/* Traditional Auspicious Header Top Border */}

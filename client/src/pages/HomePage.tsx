@@ -94,51 +94,60 @@ export const HomePage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-spiritual-cream-100 via-spiritual-cream-50 to-white py-16 sm:py-24 border-b border-spiritual-gold/25">
+      <section className="relative overflow-hidden bg-gradient-to-b from-spiritual-cream-100 via-spiritual-cream-50 to-white py-8 sm:py-20 border-b border-spiritual-gold/25">
         {/* Subtle Sacred Mandala Background Motif */}
-        <div className="absolute inset-0 opacity-[0.04] pointer-events-none flex items-center justify-center">
-          <div className="w-[800px] h-[800px] rounded-full border-[30px] border-spiritual-maroon" />
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none flex items-center justify-center overflow-hidden">
+          <div className="w-[320px] h-[320px] sm:w-[700px] sm:h-[700px] rounded-full border-[15px] sm:border-[30px] border-spiritual-maroon" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto space-y-6">
-            {/* Shloka Banner */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-spiritual-saffron-50 border border-spiritual-saffron/30 text-spiritual-maroon text-xs sm:text-sm font-semibold tracking-wide shadow-sm">
-              <Flame className="w-4 h-4 text-spiritual-saffron animate-pulse" />
-              <span>{t('hero_shloka')}</span>
+          <div className="text-center max-w-3xl mx-auto space-y-4 sm:space-y-6">
+            {/* 1. Small decorative spiritual heading */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-spiritual-saffron-50 border border-spiritual-saffron/30 text-spiritual-maroon text-[11px] sm:text-xs font-bold uppercase tracking-wider shadow-2xs">
+              <Flame className="w-3.5 h-3.5 text-spiritual-saffron animate-pulse" />
+              <span>Rigvedic Tradition • Authentic Pooja Services</span>
             </div>
 
-            {/* Central Ganesha & Sudarshana Chakra Emblem */}
-            <div className="flex justify-center my-2">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron shadow-spiritual-lg">
-                <div className="w-full h-full bg-white rounded-full p-2 flex items-center justify-center">
+            {/* 2. Sanskrit shloka in a rounded cream-colored card */}
+            <div className="w-full max-w-lg mx-auto bg-spiritual-cream-100/90 border border-spiritual-gold/50 rounded-2xl p-3 sm:p-4 shadow-2xs text-center">
+              <p className="font-serif font-bold text-spiritual-maroon text-xs sm:text-sm md:text-base leading-relaxed tracking-wide">
+                ॥ वक्रतुण्ड महाकाय सूर्यकोटि समप्रभा ॥<br className="hidden sm:inline" /> निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा ॥
+              </p>
+            </div>
+
+            {/* 3. Central Ganesha Emblem */}
+            <div className="flex justify-center my-1 sm:my-2">
+              <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron shadow-spiritual-lg flex items-center justify-center">
+                <div className="w-full h-full bg-white rounded-full p-2 flex items-center justify-center overflow-hidden">
                   <img
                     src="/logo.svg"
                     alt="Lord Ganesha and Sudarshana Chakra"
-                    className="w-full h-full object-contain filter drop-shadow"
+                    className="w-full h-full object-contain filter drop-shadow-xs"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Main Headings */}
-            <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl text-spiritual-maroon tracking-tight leading-tight">
-              {t('hero_title')}
-            </h1>
-            <h2 className="font-kannada font-bold text-2xl sm:text-3xl text-spiritual-saffron-dark">
-              {t('hero_title_kn')}
-            </h2>
+            {/* 4. Main Headings */}
+            <div className="space-y-1.5 sm:space-y-2">
+              <h1 className="font-serif font-black text-2xl sm:text-5xl lg:text-6xl text-spiritual-maroon tracking-tight leading-tight">
+                {t('hero_title')}
+              </h1>
+              <h2 className="font-kannada font-bold text-lg sm:text-3xl text-spiritual-saffron-dark leading-snug">
+                {t('hero_title_kn')}
+              </h2>
+            </div>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-neutral-700 leading-relaxed max-w-2xl mx-auto">
+            {/* 5. Supporting Description */}
+            <p className="text-xs sm:text-lg text-neutral-700 leading-relaxed max-w-2xl mx-auto px-1">
               {t('hero_subtitle')}
             </p>
 
-            {/* Hero CTAs */}
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+            {/* 6. Call to Action Buttons (Touch-friendly 44px+ targets) */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3 pt-2 sm:pt-4 w-full max-w-md sm:max-w-none mx-auto">
               <Link
                 to="/samagri"
-                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-sm shadow-spiritual hover:shadow-spiritual-lg hover:from-spiritual-saffron-600 hover:to-spiritual-maroon-light transition duration-200 flex items-center gap-2"
+                className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-sm shadow-spiritual hover:shadow-spiritual-lg hover:from-spiritual-saffron-600 hover:to-spiritual-maroon-light transition duration-200 flex items-center justify-center gap-2 active:scale-98"
               >
                 <span>{language === 'kn' ? 'ಪೂಜಾ ಸಾಮಗ್ರಿ ಪಟ್ಟಿ ರಚಿಸಿ (PDF)' : 'Generate Pooja Samagri (PDF)'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -146,14 +155,14 @@ export const HomePage: React.FC = () => {
 
               <a
                 href="#services"
-                className="px-6 py-3.5 rounded-xl border border-spiritual-maroon/30 text-spiritual-maroon bg-white hover:bg-spiritual-cream-100 font-semibold text-sm transition shadow-sm"
+                className="w-full sm:w-auto min-h-[48px] px-5 py-3 rounded-xl border border-spiritual-maroon/30 text-spiritual-maroon bg-white hover:bg-spiritual-cream-100 font-semibold text-sm transition shadow-sm flex items-center justify-center active:scale-98"
               >
                 {t('btn_explore_services')}
               </a>
 
               <a
                 href="tel:9242359692"
-                className="px-6 py-3.5 rounded-xl border border-spiritual-gold/60 text-spiritual-maroon bg-spiritual-gold/15 hover:bg-spiritual-gold/30 font-semibold text-sm transition shadow-sm flex items-center gap-2"
+                className="w-full sm:w-auto min-h-[48px] px-5 py-3 rounded-xl border border-spiritual-gold/60 text-spiritual-maroon bg-spiritual-gold/15 hover:bg-spiritual-gold/30 font-semibold text-sm transition shadow-sm flex items-center justify-center gap-2 active:scale-98"
               >
                 <Phone className="w-4 h-4 text-spiritual-saffron" />
                 <span>9242359692</span>
@@ -413,10 +422,10 @@ export const HomePage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 pt-4">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4">
                   <a
                     href="tel:9242359692"
-                    className="px-6 py-3 bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-spiritual transition flex items-center gap-2"
+                    className="min-h-[44px] px-6 py-3 bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-spiritual transition flex items-center justify-center gap-2 active:scale-98"
                   >
                     <Phone className="w-4 h-4" />
                     <span>{t('btn_call_now')}</span>
@@ -426,7 +435,7 @@ export const HomePage: React.FC = () => {
                     href="https://maps.google.com/?q=N.+Nagennahalli,+R.K.+Hegde+Nagar,+Bangalore+560077"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-3 border border-spiritual-gold/60 text-spiritual-maroon bg-spiritual-gold/15 hover:bg-spiritual-gold/30 font-semibold text-xs sm:text-sm rounded-xl transition flex items-center gap-2"
+                    className="min-h-[44px] px-6 py-3 border border-spiritual-gold/60 text-spiritual-maroon bg-spiritual-gold/15 hover:bg-spiritual-gold/30 font-semibold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2 active:scale-98"
                   >
                     <MapPin className="w-4 h-4 text-spiritual-saffron" />
                     <span>{t('btn_get_directions')}</span>

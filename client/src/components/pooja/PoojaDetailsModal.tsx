@@ -55,33 +55,34 @@ export const PoojaDetailsModal: React.FC<PoojaDetailsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-spiritual-cream-50 rounded-2xl shadow-2xl border-2 border-spiritual-gold/40 overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-spiritual-cream-50 rounded-2xl shadow-2xl border-2 border-spiritual-gold/40 overflow-hidden my-4 sm:my-8">
         {/* Header with spiritual gradient */}
-        <div className="bg-gradient-to-r from-spiritual-maroon via-spiritual-saffron-700 to-spiritual-maroon p-6 text-white flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/10 p-1 flex items-center justify-center border border-spiritual-gold">
-              <Sparkles className="w-5 h-5 text-spiritual-gold-light" />
+        <div className="bg-gradient-to-r from-spiritual-maroon via-spiritual-saffron-700 to-spiritual-maroon p-4 sm:p-6 text-white flex items-center justify-between">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 p-1 flex items-center justify-center border border-spiritual-gold flex-shrink-0">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-spiritual-gold-light" />
             </div>
             <div>
-              <h3 className="font-serif font-bold text-lg text-spiritual-gold-light">
+              <h3 className="font-serif font-bold text-base sm:text-lg text-spiritual-gold-light leading-tight">
                 {t('form_title')}
               </h3>
-              <p className="text-xs text-spiritual-cream-200">
+              <p className="text-[11px] sm:text-xs text-spiritual-cream-200">
                 {t('form_desc')} ({selectedItems.length} {t('selected_items_count')})
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10 transition"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition"
+            aria-label="Close form"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4 sm:space-y-5 max-h-[75vh] overflow-y-auto">
           {/* Selected items summary pill */}
           <div className="p-3 bg-spiritual-cream-100 rounded-xl border border-spiritual-gold/30 flex items-center justify-between text-xs text-spiritual-maroon">
             <span className="font-medium">
@@ -228,18 +229,18 @@ export const PoojaDetailsModal: React.FC<PoojaDetailsModalProps> = ({
             </div>
           </div>
 
-          {/* Form Actions */}
-          <div className="pt-4 border-t border-neutral-200 flex items-center justify-end gap-3">
+          {/* Form Actions (Mobile stacked, touch-friendly) */}
+          <div className="pt-4 border-t border-neutral-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-neutral-300 text-neutral-700 text-sm font-medium hover:bg-neutral-100 transition"
+              className="min-h-[44px] px-5 py-2.5 rounded-xl border border-neutral-300 text-neutral-700 text-sm font-medium hover:bg-neutral-100 transition active:scale-98 flex items-center justify-center"
             >
               {t('btn_cancel')}
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white text-sm font-semibold shadow-md hover:shadow-spiritual-lg hover:from-spiritual-saffron-600 hover:to-spiritual-maroon-light transition duration-200 flex items-center gap-2"
+              className="min-h-[48px] px-6 py-2.5 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white text-sm font-semibold shadow-md hover:shadow-spiritual-lg hover:from-spiritual-saffron-600 hover:to-spiritual-maroon-light transition duration-200 flex items-center justify-center gap-2 active:scale-98"
             >
               <FileText className="w-4 h-4" />
               <span>{t('btn_review_and_generate')}</span>

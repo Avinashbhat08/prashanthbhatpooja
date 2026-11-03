@@ -55,11 +55,11 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-spiritual-cream">
-      <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 border-2 border-spiritual-gold/40 shadow-spiritual-lg space-y-6">
+    <div className="min-h-[80vh] flex items-center justify-center py-8 sm:py-12 px-3 sm:px-6 lg:px-8 bg-spiritual-cream">
+      <div className="max-w-md w-full bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-10 border-2 border-spiritual-gold/40 shadow-spiritual-lg space-y-5 sm:space-y-6">
         {/* Brand Logo & Title */}
         <div className="text-center space-y-2">
-          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron p-1 shadow-md">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron p-1 shadow-md">
             <div className="w-full h-full rounded-full bg-white flex items-center justify-center p-2">
               <img
                 src="/logo.svg"
@@ -69,7 +69,7 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          <h2 className="font-serif font-black text-2xl text-spiritual-maroon">
+          <h2 className="font-serif font-black text-xl sm:text-2xl text-spiritual-maroon">
             {t('login_title')}
           </h2>
           <p className="text-xs text-neutral-500">
@@ -89,7 +89,7 @@ export const LoginPage: React.FC = () => {
                 type="email"
                 placeholder="name@example.com"
                 {...register('email')}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
+                className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
               />
             </div>
             {errors.email && (
@@ -107,7 +107,7 @@ export const LoginPage: React.FC = () => {
                 type="password"
                 placeholder="••••••••"
                 {...register('password')}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
+                className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
               />
             </div>
             {errors.password && (
@@ -118,7 +118,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-sm rounded-xl shadow-md hover:shadow-spiritual transition flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full min-h-[48px] py-3 bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-sm rounded-xl shadow-md hover:shadow-spiritual transition flex items-center justify-center gap-2 disabled:opacity-50 active:scale-98"
           >
             <span>{isLoading ? 'Signing In...' : t('btn_login')}</span>
             <ArrowRight className="w-4 h-4" />
@@ -134,7 +134,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="button"
               onClick={() => handleDemoFill('admin@poojaservices.com', 'admin123')}
-              className="py-1.5 px-2 rounded-lg border border-spiritual-maroon/30 text-spiritual-maroon bg-spiritual-cream-100 hover:bg-spiritual-cream-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+              className="min-h-[40px] py-1.5 px-2 rounded-lg border border-spiritual-maroon/30 text-spiritual-maroon bg-spiritual-cream-100 hover:bg-spiritual-cream-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-spiritual-saffron" />
               <span>Admin Demo</span>
@@ -143,7 +143,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="button"
               onClick={() => handleDemoFill('user@poojaservices.com', 'user123')}
-              className="py-1.5 px-2 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-100 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+              className="min-h-[40px] py-1.5 px-2 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-100 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
             >
               <UserCheck className="w-3.5 h-3.5 text-neutral-500" />
               <span>Devotee Demo</span>

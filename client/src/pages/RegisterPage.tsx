@@ -46,11 +46,11 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-spiritual-cream">
-      <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 border-2 border-spiritual-gold/40 shadow-spiritual-lg space-y-6">
+    <div className="min-h-[80vh] flex items-center justify-center py-8 sm:py-12 px-3 sm:px-6 lg:px-8 bg-spiritual-cream">
+      <div className="max-w-md w-full bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-10 border-2 border-spiritual-gold/40 shadow-spiritual-lg space-y-5 sm:space-y-6">
         {/* Brand Logo & Title */}
         <div className="text-center space-y-2">
-          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron p-1 shadow-md">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron p-1 shadow-md">
             <div className="w-full h-full rounded-full bg-white flex items-center justify-center p-2">
               <img
                 src="/logo.svg"
@@ -60,7 +60,7 @@ export const RegisterPage: React.FC = () => {
             </div>
           </div>
 
-          <h2 className="font-serif font-black text-2xl text-spiritual-maroon">
+          <h2 className="font-serif font-black text-xl sm:text-2xl text-spiritual-maroon">
             {t('register_title')}
           </h2>
           <p className="text-xs text-neutral-500">
@@ -80,7 +80,7 @@ export const RegisterPage: React.FC = () => {
                 type="text"
                 placeholder="Ramesh Kumar"
                 {...register('name')}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
+                className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
               />
             </div>
             {errors.name && (
@@ -98,7 +98,7 @@ export const RegisterPage: React.FC = () => {
                 type="email"
                 placeholder="name@example.com"
                 {...register('email')}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
+                className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
               />
             </div>
             {errors.email && (
@@ -116,7 +116,7 @@ export const RegisterPage: React.FC = () => {
                 type="password"
                 placeholder="At least 6 characters"
                 {...register('password')}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
+                className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:border-spiritual-saffron focus:ring-1 focus:ring-spiritual-saffron"
               />
             </div>
             {errors.password && (
@@ -127,7 +127,7 @@ export const RegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-sm rounded-xl shadow-md hover:shadow-spiritual transition flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full min-h-[48px] py-3 bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-sm rounded-xl shadow-md hover:shadow-spiritual transition flex items-center justify-center gap-2 disabled:opacity-50 active:scale-98"
           >
             <span>{isLoading ? 'Creating Account...' : t('btn_register')}</span>
             <ArrowRight className="w-4 h-4" />

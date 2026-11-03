@@ -334,14 +334,14 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-neutral-300 pb-2 overflow-x-auto">
+        {/* Tab Navigation (Scrollable chips on mobile) */}
+        <div className="flex items-center gap-2 border-b border-neutral-300 pb-2 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('items')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+            className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
               activeTab === 'items'
                 ? 'bg-spiritual-maroon text-white shadow'
-                : 'text-neutral-700 hover:bg-white'
+                : 'text-neutral-700 hover:bg-white bg-neutral-100/60'
             }`}
           >
             <FileText className="w-4 h-4" />
@@ -350,10 +350,10 @@ export const AdminDashboardPage: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('categories')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+            className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
               activeTab === 'categories'
                 ? 'bg-spiritual-maroon text-white shadow'
-                : 'text-neutral-700 hover:bg-white'
+                : 'text-neutral-700 hover:bg-white bg-neutral-100/60'
             }`}
           >
             <Layers className="w-4 h-4" />
@@ -362,10 +362,10 @@ export const AdminDashboardPage: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('gallery')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+            className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
               activeTab === 'gallery'
                 ? 'bg-spiritual-maroon text-white shadow'
-                : 'text-neutral-700 hover:bg-white'
+                : 'text-neutral-700 hover:bg-white bg-neutral-100/60'
             }`}
           >
             <ImageIcon className="w-4 h-4" />
@@ -374,10 +374,10 @@ export const AdminDashboardPage: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('settings')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+            className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
               activeTab === 'settings'
                 ? 'bg-spiritual-maroon text-white shadow'
-                : 'text-neutral-700 hover:bg-white'
+                : 'text-neutral-700 hover:bg-white bg-neutral-100/60'
             }`}
           >
             <Settings className="w-4 h-4" />

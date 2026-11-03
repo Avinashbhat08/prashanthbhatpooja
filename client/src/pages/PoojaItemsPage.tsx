@@ -261,12 +261,13 @@ export const PoojaItemsPage: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('search_placeholder')}
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-neutral-300 focus:border-spiritual-saffron focus:ring-2 focus:ring-spiritual-saffron/20 text-sm bg-neutral-50/50"
+                className="w-full min-h-[44px] pl-11 pr-10 py-2.5 rounded-xl border border-neutral-300 focus:border-spiritual-saffron focus:ring-2 focus:ring-spiritual-saffron/20 text-sm bg-neutral-50/50"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700"
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center absolute right-1 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700"
+                  aria-label="Clear search"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -275,18 +276,18 @@ export const PoojaItemsPage: React.FC = () => {
 
             <button
               onClick={() => setIsAddCustomOpen(true)}
-              className="px-4 py-2.5 rounded-xl border border-spiritual-gold/60 text-spiritual-maroon bg-spiritual-gold/15 hover:bg-spiritual-gold/30 font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2 flex-shrink-0"
+              className="min-h-[44px] px-4 py-2.5 rounded-xl border border-spiritual-gold/60 text-spiritual-maroon bg-spiritual-gold/15 hover:bg-spiritual-gold/30 font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2 flex-shrink-0 active:scale-98"
             >
               <Plus className="w-4 h-4 text-spiritual-saffron" />
               <span>{t('btn_add_custom_item')}</span>
             </button>
           </div>
 
-          {/* Row 2: Category Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+          {/* Row 2: Category Filter Tabs (Horizontal Scrollable Chips) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             <button
               onClick={() => setSelectedCategoryId('all')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+              className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition flex items-center ${
                 selectedCategoryId === 'all'
                   ? 'bg-spiritual-maroon text-white shadow-sm'
                   : 'bg-spiritual-cream-100 text-neutral-700 hover:bg-spiritual-cream-200'
@@ -301,7 +302,7 @@ export const PoojaItemsPage: React.FC = () => {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategoryId(cat.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+                  className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition flex items-center ${
                     selectedCategoryId === cat.id
                       ? 'bg-spiritual-maroon text-white shadow-sm'
                       : 'bg-spiritual-cream-100 text-neutral-700 hover:bg-spiritual-cream-200'
@@ -314,18 +315,18 @@ export const PoojaItemsPage: React.FC = () => {
           </div>
 
           {/* Row 3: Selection Controls & Sticky Counter */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-neutral-100">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-neutral-100">
             <div className="flex items-center flex-wrap gap-2 text-xs">
               <button
                 onClick={handleSelectAllFiltered}
-                className="px-3 py-1.5 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-100 transition font-medium"
+                className="min-h-[38px] px-3 py-1.5 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-100 transition font-medium active:scale-95"
               >
                 {t('btn_select_all')} ({filteredItems.length})
               </button>
 
               <button
                 onClick={handleDeselectAllFiltered}
-                className="px-3 py-1.5 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-100 transition font-medium"
+                className="min-h-[38px] px-3 py-1.5 rounded-lg border border-neutral-300 text-neutral-700 hover:bg-neutral-100 transition font-medium active:scale-95"
               >
                 {t('btn_deselect_all')}
               </button>
@@ -333,7 +334,7 @@ export const PoojaItemsPage: React.FC = () => {
               {selectedCount > 0 && (
                 <button
                   onClick={handleClearAll}
-                  className="px-3 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition font-medium flex items-center gap-1"
+                  className="min-h-[38px] px-3 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition font-medium flex items-center gap-1 active:scale-95"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>{t('btn_clear_selection')}</span>
@@ -342,7 +343,7 @@ export const PoojaItemsPage: React.FC = () => {
             </div>
 
             {/* Selected Count & Generate PDF Button */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between sm:justify-end gap-3">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-spiritual-saffron-50 border border-spiritual-saffron/30 text-xs font-bold text-spiritual-maroon">
                 <Flame className="w-3.5 h-3.5 text-spiritual-saffron" />
                 <span>
@@ -352,7 +353,7 @@ export const PoojaItemsPage: React.FC = () => {
 
               <button
                 onClick={handleStartPdfFlow}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-spiritual hover:from-spiritual-saffron-600 hover:to-spiritual-maroon-light transition flex items-center gap-2"
+                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-spiritual hover:from-spiritual-saffron-600 hover:to-spiritual-maroon-light transition flex items-center gap-2 active:scale-98"
               >
                 <FileText className="w-4 h-4" />
                 <span>{t('btn_generate_pdf')}</span>
@@ -573,6 +574,23 @@ export const PoojaItemsPage: React.FC = () => {
             details={poojaDetails}
             selectedItems={selectedList}
           />
+        )}
+
+        {/* Mobile Floating Sticky PDF Action Bar */}
+        {selectedCount > 0 && (
+          <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t-2 border-spiritual-gold/50 shadow-2xl z-30 flex items-center justify-between gap-3 animate-slideUp">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-spiritual-saffron-50 border border-spiritual-saffron/30 text-xs font-bold text-spiritual-maroon flex-shrink-0">
+              <Flame className="w-3.5 h-3.5 text-spiritual-saffron" />
+              <span>{selectedCount} {t('selected_items_count')}</span>
+            </div>
+            <button
+              onClick={handleStartPdfFlow}
+              className="flex-1 min-h-[44px] px-4 py-2.5 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white text-xs font-bold shadow-md flex items-center justify-center gap-2 active:scale-95"
+            >
+              <FileText className="w-4 h-4" />
+              <span>{t('btn_generate_pdf')}</span>
+            </button>
+          </div>
         )}
       </div>
     </div>

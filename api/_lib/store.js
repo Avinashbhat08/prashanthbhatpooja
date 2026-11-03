@@ -142,3 +142,4 @@ export const defaultUsers = [
     role: 'USER',
   },
 ];
+

@@ -37,13 +37,13 @@ export const AboutPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-spiritual-cream py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+    <div className="min-h-screen bg-spiritual-cream py-6 sm:py-12">
+      <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
         {/* Language switch pill banner */}
         <div className="flex justify-end">
           <button
             onClick={() => setLanguage(language === 'en' ? 'kn' : 'en')}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-spiritual-gold/60 text-xs font-semibold text-spiritual-maroon hover:bg-spiritual-gold/15 transition shadow-sm"
+            className="min-h-[40px] flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-spiritual-gold/60 text-xs font-semibold text-spiritual-maroon hover:bg-spiritual-gold/15 transition shadow-xs active:scale-95"
           >
             <Languages className="w-4 h-4 text-spiritual-saffron" />
             <span>{language === 'en' ? 'ಕನ್ನಡದಲ್ಲಿ ಓದಿ (Read in Kannada)' : 'Switch to English'}</span>
@@ -51,30 +51,30 @@ export const AboutPage: React.FC = () => {
         </div>
 
         {/* Hero Banner */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-spiritual-maroon via-spiritual-saffron-700 to-spiritual-maroon p-8 sm:p-12 text-white overflow-hidden shadow-spiritual-lg border-2 border-spiritual-gold/50">
+        <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-r from-spiritual-maroon via-spiritual-saffron-700 to-spiritual-maroon p-5 sm:p-12 text-white overflow-hidden shadow-spiritual-lg border-2 border-spiritual-gold/50">
           <div className="relative z-10 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold text-spiritual-gold-light mb-4 border border-white/20">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-[11px] sm:text-xs font-semibold text-spiritual-gold-light mb-3 sm:mb-4 border border-white/20">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Bangalore North • Traditional Pooja Services</span>
             </div>
-            <h1 className="font-serif font-black text-3xl sm:text-5xl tracking-wide text-white">
+            <h1 className="font-serif font-black text-2xl sm:text-5xl tracking-wide text-white leading-tight">
               {purohitName}
             </h1>
-            <p className="font-serif text-spiritual-gold-light text-base sm:text-xl font-medium mt-2">
+            <p className="font-serif text-spiritual-gold-light text-sm sm:text-xl font-medium mt-1 sm:mt-2">
               {t('about_hero_subtitle')}
             </p>
           </div>
 
-          <div className="absolute right-6 -bottom-6 opacity-20 pointer-events-none w-64 h-64">
+          <div className="absolute right-4 -bottom-6 opacity-15 pointer-events-none w-48 h-48 sm:w-64 sm:h-64">
             <img src="/logo.svg" alt="" className="w-full h-full object-contain" />
           </div>
         </div>
 
         {/* Main Details Card */}
-        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-spiritual-gold/30 shadow-md grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-12 border border-spiritual-gold/30 shadow-md grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-start">
           {/* Profile Image & Quick Contact Column */}
-          <div className="md:col-span-5 flex flex-col items-center text-center p-6 bg-spiritual-cream-50 rounded-2xl border border-spiritual-gold/30">
-            <div className="w-40 h-40 rounded-full bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron p-1.5 shadow-spiritual-lg mb-4">
+          <div className="md:col-span-5 flex flex-col items-center text-center p-4 sm:p-6 bg-spiritual-cream-50 rounded-2xl border border-spiritual-gold/30">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron p-1.5 shadow-spiritual-lg mb-3 sm:mb-4">
               <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
                 <img
                   src="/prashanth-bhat.jpg"
@@ -84,21 +84,21 @@ export const AboutPage: React.FC = () => {
               </div>
             </div>
 
-            <h2 className="font-serif font-bold text-xl text-spiritual-maroon">
+            <h2 className="font-serif font-bold text-lg sm:text-xl text-spiritual-maroon">
               {purohitName}
             </h2>
             <p className="text-xs text-neutral-500 font-medium uppercase mt-0.5">
               Purohit
             </p>
 
-            <div className="w-full mt-6 pt-6 border-t border-spiritual-gold/30 space-y-4 text-left text-xs text-neutral-700">
+            <div className="w-full mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-spiritual-gold/30 space-y-3 sm:space-y-4 text-left text-xs text-neutral-700">
               <div className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-spiritual-saffron flex-shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-neutral-500 block uppercase text-[10px]">
                     {t('contact_address_label')}
                   </span>
-                  <span className="leading-snug text-neutral-800">{address}</span>
+                  <span className="leading-snug text-neutral-800 break-words">{address}</span>
                 </div>
               </div>
 
@@ -119,10 +119,10 @@ export const AboutPage: React.FC = () => {
             </div>
 
             {/* Call & Map Actions */}
-            <div className="w-full grid grid-cols-2 gap-2 mt-6">
+            <div className="w-full grid grid-cols-2 gap-2 mt-4 sm:mt-6">
               <a
                 href={`tel:${phone}`}
-                className="py-2.5 px-3 bg-spiritual-saffron text-white text-xs font-bold rounded-xl shadow hover:bg-spiritual-maroon transition text-center flex items-center justify-center gap-1.5"
+                className="min-h-[44px] py-2.5 px-3 bg-spiritual-saffron text-white text-xs font-bold rounded-xl shadow hover:bg-spiritual-maroon transition text-center flex items-center justify-center gap-1.5 active:scale-95"
               >
                 <Phone className="w-3.5 h-3.5" />
                 <span>{t('btn_call_now')}</span>
