@@ -24,8 +24,9 @@ import {
   WebsiteSettings,
 } from '../types/index.js';
 import { useToast } from '../components/common/Toast.js';
+import { AdminHoroscopeManagement } from '../components/admin/AdminHoroscopeManagement.js';
 
-type ActiveTab = 'items' | 'categories' | 'gallery' | 'settings';
+type ActiveTab = 'items' | 'categories' | 'gallery' | 'horoscopes' | 'settings';
 
 export const AdminDashboardPage: React.FC = () => {
   const { language, t } = useLanguage();
@@ -373,6 +374,18 @@ export const AdminDashboardPage: React.FC = () => {
           </button>
 
           <button
+            onClick={() => setActiveTab('horoscopes')}
+            className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
+              activeTab === 'horoscopes'
+                ? 'bg-spiritual-maroon text-white shadow'
+                : 'text-neutral-700 hover:bg-white bg-neutral-100/60'
+            }`}
+          >
+            <Flame className="w-4 h-4 text-spiritual-gold-light" />
+            <span>{t('admin_tab_horoscopes')}</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('settings')}
             className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
               activeTab === 'settings'
@@ -599,7 +612,10 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 4: WEBSITE SETTINGS */}
+        {/* TAB 4: HOROSCOPE MANAGEMENT */}
+        {activeTab === 'horoscopes' && <AdminHoroscopeManagement />}
+
+        {/* TAB 5: WEBSITE SETTINGS */}
         {activeTab === 'settings' && (
           <div className="bg-white rounded-2xl p-6 sm:p-8 border border-spiritual-gold/30 shadow-sm max-w-2xl">
             <h3 className="font-serif font-bold text-lg text-spiritual-maroon mb-4">

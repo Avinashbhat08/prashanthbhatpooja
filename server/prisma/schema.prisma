@@ -8,15 +8,17 @@ generator client {
 }
 
 model User {
-  id           String         @id @default(uuid())
-  name         String
-  email        String         @unique
-  passwordHash String
-  role         String         @default("USER") // "ADMIN" or "USER"
-  isActive     Boolean        @default(true)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  poojaRequests PoojaRequest[]
+  id                String             @id @default(uuid())
+  name              String
+  email             String             @unique
+  passwordHash      String
+  role              String             @default("USER") // "ADMIN" or "USER"
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  poojaRequests     PoojaRequest[]
+  horoscopeRequests HoroscopeRequest[]
+  notifications     Notification[]
 }
 
 model PoojaCategory {
@@ -82,4 +84,45 @@ model SystemSetting {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+model HoroscopeRequest {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personName        String
+  dateOfBirth       String
+  timeOfBirth       String
+  birthPlace        String
+  gender            String?
+  contactNumber     String
+  preferredLanguage String    @default("en")
+  notes             String?
+  status            String    @default("SUBMITTED")
+  // "SUBMITTED" | "UNDER_REVIEW" | "CALCULATION_COMPLETED" | "PENDING_APPROVAL" | "APPROVED" | "REJECTED"
+  assignedReviewer  String?
+  calculationData   String?
+  doshaAnalysis     String?
+  remedies          String?
+  purohitComments   String?
+  approvedBy        String?
+  approvedAt        DateTime?
+  rejectionReason   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Notification {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  horoscopeRequestId String?
+  titleEnglish        String
+  titleKannada        String
+  messageEnglish      String
+  messageKannada      String
+  type                String   @default("INFO")
+  isRead              Boolean  @default(false)
+  createdAt           DateTime @default(now())
+}
+
 

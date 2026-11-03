@@ -6,6 +6,11 @@ import {
   PoojaDetailsFormData,
   PoojaRequestRecord,
   WebsiteSettings,
+  HoroscopeFormData,
+  HoroscopeRequestRecord,
+  DoshaItem,
+  RemedyItem,
+  NotificationRecord,
 } from '../types/index.js';
 import {
   fallbackCategories,
@@ -293,5 +298,81 @@ export const api = {
   // Health Check (matches Step 10)
   async checkHealth() {
     return request<{ success: boolean; message: string; environment: string }>('/health');
+  },
+
+  // Horoscope Requests (Customer & Admin)
+  async createHoroscopeRequest(data: HoroscopeFormData) {
+    return request<HoroscopeRequestRecord>('/horoscope-requests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getMyHoroscopeRequests() {
+    return request<HoroscopeRequestRecord[]>('/horoscope-requests/my');
+  },
+
+  async getHoroscopeRequestById(id: string) {
+    return request<HoroscopeRequestRecord>(`/horoscope-requests/${id}`);
+  },
+
+  async getAllHoroscopeRequests(params?: { status?: string; search?: string }) {
+    const query = new URLSearchParams();
+    if (params?.status && params.status !== 'ALL') query.set('status', params.status);
+    if (params?.search) query.set('search', params.search);
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    return request<HoroscopeRequestRecord[]>(`/horoscope-requests${queryString}`);
+  },
+
+  async calculateHoroscope(id: string) {
+    return request<HoroscopeRequestRecord>(`/horoscope-requests/${id}/calculate`, {
+      method: 'POST',
+    });
+  },
+
+  async reviewHoroscope(
+    id: string,
+    data: {
+      doshas?: DoshaItem[];
+      remedies?: RemedyItem[];
+      purohitComments?: string;
+      status?: string;
+    }
+  ) {
+    return request<HoroscopeRequestRecord>(`/horoscope-requests/${id}/review`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async approveHoroscope(id: string, purohitComments?: string) {
+    return request<HoroscopeRequestRecord>(`/horoscope-requests/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ purohitComments }),
+    });
+  },
+
+  async rejectHoroscope(id: string, reason: string) {
+    return request<HoroscopeRequestRecord>(`/horoscope-requests/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  // Notifications
+  async getNotifications() {
+    return request<{ data: NotificationRecord[]; unreadCount: number }>('/notifications');
+  },
+
+  async markNotificationAsRead(id: string) {
+    return request<NotificationRecord>(`/notifications/${id}/read`, {
+      method: 'PATCH',
+    });
+  },
+
+  async markAllNotificationsAsRead() {
+    return request<{ message: string }>('/notifications/read-all', {
+      method: 'PATCH',
+    });
   },
 };

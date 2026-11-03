@@ -96,3 +96,171 @@ export interface WebsiteSettings {
   [key: string]: string | undefined;
 }
 
+export type HoroscopeStatus =
+  | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'CALCULATION_COMPLETED'
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'REJECTED';
+
+export interface HoroscopeFormData {
+  personName: string;
+  dateOfBirth: string; // YYYY-MM-DD
+  timeOfBirth: string; // HH:MM
+  birthPlace: string;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
+  contactNumber: string;
+  preferredLanguage?: 'en' | 'kn';
+  notes?: string;
+}
+
+export interface PlanetPosition {
+  name: string;
+  nameKannada: string;
+  symbol: string;
+  longitude: number;
+  rashiId: number;
+  rashiEnglish: string;
+  rashiKannada: string;
+  degreeInSign: number;
+  formattedDeg: string;
+  nakshatraId: number;
+  nakshatraEnglish: string;
+  nakshatraKannada: string;
+  pada: number;
+  isRetrograde: boolean;
+  house: number;
+}
+
+export interface DashaPeriod {
+  lord: string;
+  lordKannada: string;
+  startDate: string;
+  endDate: string;
+  durationYears: number;
+  isBirthDasha: boolean;
+}
+
+export interface DoshaItem {
+  id: string;
+  nameEnglish: string;
+  nameKannada: string;
+  detected: boolean;
+  confirmed: boolean;
+  severity: 'None' | 'Low' | 'Medium' | 'High';
+  reasoningEnglish: string;
+  reasoningKannada: string;
+  reviewerNotes: string;
+  cancellationInfo?: string;
+}
+
+export interface RemedyItem {
+  id: string;
+  titleEnglish: string;
+  titleKannada: string;
+  descriptionEnglish: string;
+  descriptionKannada: string;
+  traditionalReasonEnglish: string;
+  traditionalReasonKannada: string;
+  recommended: boolean;
+  approved: boolean;
+}
+
+export interface HoroscopeCalculationResult {
+  personName: string;
+  dateOfBirth: string;
+  timeOfBirth: string;
+  birthPlace: string;
+  latitude: number;
+  longitude: number;
+  julianDay: number;
+  ayanamsha: number;
+  formattedAyanamsha: string;
+
+  janmaRashi: {
+    id: number;
+    nameEnglish: string;
+    nameKannada: string;
+    lord: string;
+    lordKannada: string;
+  };
+
+  suryaRashi: {
+    id: number;
+    nameEnglish: string;
+    nameKannada: string;
+  };
+
+  lagna: {
+    id: number;
+    nameEnglish: string;
+    nameKannada: string;
+    longitude: number;
+    degreeInSign: number;
+    formattedDeg: string;
+    nakshatraEnglish: string;
+    nakshatraKannada: string;
+    pada: number;
+  };
+
+  nakshatra: {
+    id: number;
+    nameEnglish: string;
+    nameKannada: string;
+    pada: number;
+    lord: string;
+  };
+
+  planets: PlanetPosition[];
+  houses: { houseNumber: number; rashiId: number; rashiEnglish: string; rashiKannada: string; planets: string[] }[];
+  dashas: DashaPeriod[];
+  southIndianChart: { rashiId: number; rashiEnglish: string; rashiKannada: string; isLagna: boolean; planets: string[] }[];
+  northIndianChart: { houseNumber: number; rashiId: number; rashiEnglish: string; rashiKannada: string; planets: string[] }[];
+  doshas: DoshaItem[];
+  remedies: RemedyItem[];
+}
+
+export interface HoroscopeRequestRecord {
+  id: string;
+  userId: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  personName: string;
+  dateOfBirth: string;
+  timeOfBirth: string;
+  birthPlace: string;
+  gender?: string | null;
+  contactNumber: string;
+  preferredLanguage: string;
+  notes?: string | null;
+  status: HoroscopeStatus;
+  assignedReviewer?: string | null;
+  calculationData?: HoroscopeCalculationResult | null;
+  doshaAnalysis?: DoshaItem[] | null;
+  remedies?: RemedyItem[] | null;
+  purohitComments?: string | null;
+  approvedBy?: string | null;
+  approvedAt?: string | null;
+  rejectionReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NotificationRecord {
+  id: string;
+  userId: string;
+  horoscopeRequestId?: string | null;
+  titleEnglish: string;
+  titleKannada: string;
+  messageEnglish: string;
+  messageKannada: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext.js';
 import { useAuth } from '../../contexts/AuthContext.js';
+import { NotificationBell } from '../notifications/NotificationBell.js';
 
 export const Navbar: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -63,6 +64,7 @@ export const Navbar: React.FC = () => {
     { name: t('nav_home'), path: '/', icon: Home },
     { name: t('nav_about'), path: '/about', icon: UserCheck },
     { name: t('nav_samagri'), path: '/samagri', highlight: true, icon: ShoppingBag },
+    { name: t('nav_horoscope'), path: '/horoscope', icon: Flame },
     { name: t('nav_gallery'), path: '/gallery', icon: ImageIcon },
     { name: t('nav_contact'), path: '/#contact', icon: Mail },
   ];
@@ -170,6 +172,8 @@ export const Navbar: React.FC = () => {
                 <span>{language === 'en' ? 'ಕನ್ನಡ' : 'English'}</span>
               </button>
 
+              <NotificationBell />
+
               {user ? (
                 <div className="flex items-center gap-2">
                   {isAdmin && (
@@ -221,6 +225,7 @@ export const Navbar: React.FC = () => {
               >
                 {language === 'en' ? 'ಕನ್ನಡ' : 'English'}
               </button>
+              <NotificationBell />
               <button
                 onClick={() => setMobileMenuOpen(true)}
                 className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-spiritual-maroon hover:bg-spiritual-cream-100 active:scale-95 transition border border-spiritual-gold/30 bg-white/80"

@@ -9,6 +9,8 @@ import categoryRoutes from './routes/categories.js';
 import galleryRoutes from './routes/gallery.js';
 import poojaRequestRoutes from './routes/poojaRequests.js';
 import settingRoutes from './routes/settings.js';
+import horoscopeRequestRoutes from './routes/horoscopeRequests.js';
+import notificationRoutes from './routes/notifications.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,6 +55,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/pooja-requests', poojaRequestRoutes);
 app.use('/api/settings', settingRoutes);
+app.use('/api/horoscope-requests', horoscopeRequestRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check endpoint (matches Step 10 specification)
 app.get('/api/health', (req, res) => {

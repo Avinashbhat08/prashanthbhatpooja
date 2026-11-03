@@ -55,6 +55,46 @@
       "destination": "/api/pooja-requests.js"
     },
     {
+      "source": "/api/horoscope-requests/my",
+      "destination": "/api/horoscope-requests.js?my=true"
+    },
+    {
+      "source": "/api/horoscope-requests/:id/calculate",
+      "destination": "/api/horoscope-requests.js?id=:id&action=calculate"
+    },
+    {
+      "source": "/api/horoscope-requests/:id/review",
+      "destination": "/api/horoscope-requests.js?id=:id&action=review"
+    },
+    {
+      "source": "/api/horoscope-requests/:id/approve",
+      "destination": "/api/horoscope-requests.js?id=:id&action=approve"
+    },
+    {
+      "source": "/api/horoscope-requests/:id/reject",
+      "destination": "/api/horoscope-requests.js?id=:id&action=reject"
+    },
+    {
+      "source": "/api/horoscope-requests/:id",
+      "destination": "/api/horoscope-requests.js?id=:id"
+    },
+    {
+      "source": "/api/horoscope-requests",
+      "destination": "/api/horoscope-requests.js"
+    },
+    {
+      "source": "/api/notifications/read-all",
+      "destination": "/api/notifications.js?id=read-all"
+    },
+    {
+      "source": "/api/notifications/:id/read",
+      "destination": "/api/notifications.js?id=:id"
+    },
+    {
+      "source": "/api/notifications",
+      "destination": "/api/notifications.js"
+    },
+    {
       "source": "/((?!api/|gallery/|uploads/|prashanth-bhat.jpg|logo.svg|favicon.ico).*)",
       "destination": "/index.html"
     }
