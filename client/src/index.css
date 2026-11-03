@@ -26,6 +26,16 @@
   scrollbar-width: none;
 }
 
+/* Mobile drawer open state: lock scroll and hide bottom sticky floating bars */
+body.mobile-drawer-open {
+  overflow: hidden !important;
+}
+body.mobile-drawer-open .sticky-mobile-pdf-bar {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
 /* Print Specific Rules for Clean A4 Output */
 @media print {
   header, footer, nav, button, .no-print {

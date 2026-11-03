@@ -578,7 +578,7 @@ export const PoojaItemsPage: React.FC = () => {
 
         {/* Mobile Floating Sticky PDF Action Bar */}
         {selectedCount > 0 && (
-          <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t-2 border-spiritual-gold/50 shadow-2xl z-30 flex items-center justify-between gap-3 animate-slideUp">
+          <div className="sticky-mobile-pdf-bar sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t-2 border-spiritual-gold/50 shadow-2xl z-20 flex items-center justify-between gap-3 animate-slideUp">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-spiritual-saffron-50 border border-spiritual-saffron/30 text-xs font-bold text-spiritual-maroon flex-shrink-0">
               <Flame className="w-3.5 h-3.5 text-spiritual-saffron" />
               <span>{selectedCount} {t('selected_items_count')}</span>
