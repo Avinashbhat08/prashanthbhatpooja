@@ -1,15 +1,61 @@
 {
+  "buildCommand": "npm --prefix client run build",
+  "outputDirectory": "client/dist",
   "rewrites": [
-    {
-      "source": "/api/gallery",
-      "destination": "/api/gallery.js"
-    },
     {
       "source": "/api/health",
       "destination": "/api/health.js"
     },
     {
-      "source": "/((?!api/|uploads/|gallery/|prashanth-bhat.jpg|logo.svg|favicon.ico).*)",
+      "source": "/api/auth/login",
+      "destination": "/api/auth/login.js"
+    },
+    {
+      "source": "/api/auth/register",
+      "destination": "/api/auth/register.js"
+    },
+    {
+      "source": "/api/auth/logout",
+      "destination": "/api/auth/logout.js"
+    },
+    {
+      "source": "/api/auth/me",
+      "destination": "/api/auth/me.js"
+    },
+    {
+      "source": "/api/gallery",
+      "destination": "/api/gallery.js"
+    },
+    {
+      "source": "/api/gallery/:id",
+      "destination": "/api/gallery.js?id=:id"
+    },
+    {
+      "source": "/api/categories",
+      "destination": "/api/categories.js"
+    },
+    {
+      "source": "/api/categories/:id",
+      "destination": "/api/categories.js?id=:id"
+    },
+    {
+      "source": "/api/pooja-items",
+      "destination": "/api/pooja-items.js"
+    },
+    {
+      "source": "/api/pooja-items/:id",
+      "destination": "/api/pooja-items.js?id=:id"
+    },
+    {
+      "source": "/api/settings",
+      "destination": "/api/settings.js"
+    },
+    {
+      "source": "/api/pooja-requests",
+      "destination": "/api/pooja-requests.js"
+    },
+    {
+      "source": "/((?!api/|gallery/|uploads/|prashanth-bhat.jpg|logo.svg|favicon.ico).*)",
       "destination": "/index.html"
     }
   ]

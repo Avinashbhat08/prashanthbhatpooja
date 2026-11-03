@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prisma.js';
-import { authenticate, requireAdmin, AuthenticatedRequest } from '../middleware/auth.js';
+import { authenticate, optionalAuthenticate, requireAdmin, AuthenticatedRequest } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -13,8 +13,8 @@ const poojaItemSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-// GET /api/pooja-items (Protected: requires authentication)
-router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+// GET /api/pooja-items (Public / Optional Auth: Devotees view active items, admin sees all)
+router.get('/', optionalAuthenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { categoryId, q } = req.query;
 
@@ -51,15 +51,18 @@ router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response) =
       orderBy: { nameEnglish: 'asc' },
     });
 
-    res.json(items);
+    res.json({
+      success: true,
+      data: items,
+    });
   } catch (error) {
     console.error('Error fetching pooja items:', error);
-    res.status(500).json({ message: 'Failed to fetch pooja items' });
+    res.status(500).json({ success: false, message: 'Failed to fetch pooja items' });
   }
 });
 
-// GET /api/pooja-items/:id (Protected)
-router.get('/:id', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+// GET /api/pooja-items/:id (Public / Optional Auth)
+router.get('/:id', optionalAuthenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
     const item = await prisma.poojaItem.findUnique({
@@ -68,12 +71,15 @@ router.get('/:id', authenticate, async (req: AuthenticatedRequest, res: Response
     });
 
     if (!item) {
-      return res.status(404).json({ message: 'Pooja item not found' });
+      return res.status(404).json({ success: false, message: 'Pooja item not found' });
     }
 
-    res.json(item);
+    res.json({
+      success: true,
+      data: item,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch item' });
+    res.status(500).json({ success: false, message: 'Failed to fetch item' });
   }
 });
 
@@ -82,7 +88,7 @@ router.post('/', authenticate, requireAdmin, async (req: AuthenticatedRequest, r
   try {
     const parsed = poojaItemSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ message: parsed.error.errors[0].message });
+      return res.status(400).json({ success: false, message: parsed.error.errors[0].message });
     }
 
     const { nameEnglish, nameKannada, categoryId, defaultQuantity, isActive } = parsed.data;
@@ -100,10 +106,13 @@ router.post('/', authenticate, requireAdmin, async (req: AuthenticatedRequest, r
       },
     });
 
-    res.status(201).json(newItem);
+    res.status(201).json({
+      success: true,
+      data: newItem,
+    });
   } catch (error) {
     console.error('Error creating item:', error);
-    res.status(500).json({ message: 'Failed to create pooja item' });
+    res.status(500).json({ success: false, message: 'Failed to create pooja item' });
   }
 });
 
@@ -113,7 +122,7 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthenticatedRequest,
     const id = String(req.params.id);
     const parsed = poojaItemSchema.partial().safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ message: parsed.error.errors[0].message });
+      return res.status(400).json({ success: false, message: parsed.error.errors[0].message });
     }
 
     const updated = await prisma.poojaItem.update({
@@ -124,10 +133,13 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthenticatedRequest,
       },
     });
 
-    res.json(updated);
+    res.json({
+      success: true,
+      data: updated,
+    });
   } catch (error) {
     console.error('Error updating item:', error);
-    res.status(500).json({ message: 'Failed to update pooja item' });
+    res.status(500).json({ success: false, message: 'Failed to update pooja item' });
   }
 });
 
@@ -139,9 +151,9 @@ router.delete('/:id', authenticate, requireAdmin, async (req: AuthenticatedReque
       where: { id },
     });
 
-    res.json({ message: 'Pooja item deleted successfully' });
+    res.json({ success: true, message: 'Pooja item deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete pooja item' });
+    res.status(500).json({ success: false, message: 'Failed to delete pooja item' });
   }
 });
 

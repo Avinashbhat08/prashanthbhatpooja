@@ -67,6 +67,7 @@ router.post('/register', async (req: Request, res: Response) => {
     );
 
     res.status(201).json({
+      success: true,
       message: 'Account created successfully',
       token,
       user: {
@@ -144,6 +145,7 @@ router.post('/login', async (req: Request, res: Response) => {
     );
 
     res.json({
+      success: true,
       message: 'Login successful',
       token,
       user: {
@@ -155,7 +157,7 @@ router.post('/login', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Internal server error while logging in' });
+    res.status(500).json({ success: false, message: 'Internal server error while logging in' });
   }
 });
 
@@ -175,18 +177,18 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response)
     });
 
     if (!user || !user.isActive) {
-      return res.status(404).json({ message: 'User not found or inactive' });
+      return res.status(404).json({ success: false, message: 'User not found or inactive' });
     }
 
-    res.json({ user });
+    res.json({ success: true, user });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to retrieve profile' });
+    res.status(500).json({ success: false, message: 'Failed to retrieve profile' });
   }
 });
 
 // POST /api/auth/logout
 router.post('/logout', (req: Request, res: Response) => {
-  res.json({ message: 'Logged out successfully' });
+  res.json({ success: true, message: 'Logged out successfully' });
 });
 
 // POST /api/auth/forgot-password

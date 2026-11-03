@@ -15,8 +15,16 @@ import {
 } from './fallbackData.js';
 
 // Centralized API Base URL configuration
-const envApiBase = import.meta.env.VITE_API_BASE_URL?.trim();
-const API_BASE = envApiBase ? envApiBase.replace(/\/+$/, '') : '/api';
+function getApiBaseUrl(): string {
+  const envUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (!envUrl) {
+    return '/api';
+  }
+  const cleanUrl = envUrl.replace(/\/+$/, '');
+  return cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+}
+
+const API_BASE = getApiBaseUrl();
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('pooja_token');
@@ -280,5 +288,10 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify(settings),
     });
+  },
+
+  // Health Check (matches Step 10)
+  async checkHealth() {
+    return request<{ success: boolean; message: string; environment: string }>('/health');
   },
 };

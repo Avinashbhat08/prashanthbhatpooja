@@ -23,9 +23,12 @@ router.get('/', async (req: Request, res: Response) => {
       },
       orderBy: { nameEnglish: 'asc' },
     });
-    res.json(categories);
+    res.json({
+      success: true,
+      data: categories,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch categories' });
+    res.status(500).json({ success: false, message: 'Failed to fetch categories' });
   }
 });
 
@@ -34,16 +37,19 @@ router.post('/', authenticate, requireAdmin, async (req: AuthenticatedRequest, r
   try {
     const parsed = categorySchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ message: parsed.error.errors[0].message });
+      return res.status(400).json({ success: false, message: parsed.error.errors[0].message });
     }
 
     const category = await prisma.poojaCategory.create({
       data: parsed.data,
     });
 
-    res.status(201).json(category);
+    res.status(201).json({
+      success: true,
+      data: category,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create category' });
+    res.status(500).json({ success: false, message: 'Failed to create category' });
   }
 });
 
@@ -53,7 +59,7 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthenticatedRequest,
     const id = String(req.params.id);
     const parsed = categorySchema.partial().safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ message: parsed.error.errors[0].message });
+      return res.status(400).json({ success: false, message: parsed.error.errors[0].message });
     }
 
     const updated = await prisma.poojaCategory.update({
@@ -61,9 +67,12 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthenticatedRequest,
       data: parsed.data,
     });
 
-    res.json(updated);
+    res.json({
+      success: true,
+      data: updated,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update category' });
+    res.status(500).json({ success: false, message: 'Failed to update category' });
   }
 });
 
@@ -75,9 +84,9 @@ router.delete('/:id', authenticate, requireAdmin, async (req: AuthenticatedReque
       where: { id },
     });
 
-    res.json({ message: 'Category deleted successfully' });
+    res.json({ success: true, message: 'Category deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete category' });
+    res.status(500).json({ success: false, message: 'Failed to delete category' });
   }
 });
 

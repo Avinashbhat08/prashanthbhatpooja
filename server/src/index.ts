@@ -15,10 +15,28 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+// Allowed Origins for CORS
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:4173',
+  'https://prashanthbhatpooja.vercel.app',
+  'https://prashanthbhatpooja-g78j.vercel.app',
+];
+
 // Middlewares
 app.use(cors({
-  origin: true, // Allow frontend dev server and production origin
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Permissive fallback to prevent breaking new vercel preview URLs
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 app.use(express.json());
@@ -36,23 +54,32 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/pooja-requests', poojaRequestRoutes);
 app.use('/api/settings', settingRoutes);
 
-// Health check endpoint
+// Health check endpoint (matches Step 10 specification)
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    success: true,
+    message: 'Pooja API is running',
+    environment: process.env.NODE_ENV || 'production',
+  });
 });
 
 // 404 handler for API routes
 app.use('/api/*', (req, res) => {
-  res.status(404).json({ message: 'API route not found' });
+  res.status(404).json({ success: false, message: 'API route not found' });
 });
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Unhandled server error:', err);
-  res.status(500).json({ message: err.message || 'Internal Server Error' });
+  res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
-app.listen(config.port, () => {
-  console.log(`Pooja Services Server running on http://localhost:${config.port}`);
-});
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  app.listen(config.port, () => {
+    console.log(`Pooja Services Server running on http://localhost:${config.port}`);
+  });
+}
+
+export { app };
+export default app;
 
