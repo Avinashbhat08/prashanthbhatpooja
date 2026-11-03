@@ -23,10 +23,21 @@ export const HomePage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     api
       .getGallery()
-      .then((data) => setGalleryImages(data.slice(0, 3)))
-      .catch((err) => console.error('Gallery preview error:', err));
+      .then((data) => {
+        if (isMounted && Array.isArray(data)) {
+          setGalleryImages(data.slice(0, 3));
+        }
+      })
+      .catch((err) => {
+        console.warn('Gallery preview notice:', err?.message || err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const poojaServices = [

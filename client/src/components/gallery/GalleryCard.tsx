@@ -14,6 +14,11 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({ image, onOpen }) => {
 
   const imagesList = image.images && image.images.length > 0 ? image.images : [image.imageUrl];
   const isMulti = imagesList.length > 1;
+  const [currentSrc, setCurrentSrc] = useState(imagesList[0]);
+
+  useEffect(() => {
+    setCurrentSrc(imagesList[slideIndex] || imagesList[0]);
+  }, [slideIndex, imagesList]);
 
   // Auto-play slideshow if multiple images
   useEffect(() => {
@@ -67,9 +72,14 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({ image, onOpen }) => {
     >
       {/* Active Slide Image */}
       <img
-        src={imagesList[slideIndex]}
+        src={currentSrc}
         alt={image.captionEnglish}
         loading="lazy"
+        onError={() => {
+          if (currentSrc !== '/gallery/satyanarayana-pooja-1.jpg') {
+            setCurrentSrc('/gallery/satyanarayana-pooja-1.jpg');
+          }
+        }}
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
 

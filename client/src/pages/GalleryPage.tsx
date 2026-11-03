@@ -7,10 +7,11 @@ import { Lightbox } from '../components/gallery/Lightbox.js';
 import { GalleryCard } from '../components/gallery/GalleryCard.js';
 
 export const GalleryPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [loading, setLoading] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState<GalleryImage | null>(null);
   const [initialSlide, setInitialSlide] = useState<number>(0);
 
@@ -27,12 +28,32 @@ export const GalleryPage: React.FC = () => {
   ];
 
   useEffect(() => {
+    let isCurrent = true;
     setLoading(true);
+    setErrorMessage(null);
+
     api
       .getGallery(selectedCategory === 'All' ? undefined : selectedCategory)
-      .then((data) => setImages(data))
-      .catch((err) => console.error('Failed to load gallery:', err))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (isCurrent) {
+          setImages(Array.isArray(data) ? data : []);
+        }
+      })
+      .catch((err) => {
+        if (isCurrent) {
+          console.warn('Gallery load notice:', err?.message || err);
+          setErrorMessage(err?.message || 'Unable to fetch gallery images');
+        }
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
   }, [selectedCategory]);
 
   const handleOpenImage = (img: GalleryImage, slideIndex: number = 0) => {
@@ -76,18 +97,45 @@ export const GalleryPage: React.FC = () => {
           ))}
         </div>
 
-        {/* Gallery Grid */}
+        {/* Gallery Content Area */}
         {loading ? (
           <div className="py-24 text-center">
-            <Flame className="w-10 h-10 text-spiritual-saffron animate-bounce mx-auto mb-3" />
-            <p className="text-spiritual-maroon font-serif font-semibold">
-              Loading Sacred Photographs...
+            <Flame className="w-12 h-12 text-spiritual-saffron animate-bounce mx-auto mb-3" />
+            <p className="text-spiritual-maroon font-serif font-semibold text-lg">
+              {language === 'kn' ? 'ಚಿತ್ರಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...' : 'Loading Sacred Photographs...'}
             </p>
           </div>
+        ) : errorMessage && images.length === 0 ? (
+          <div className="bg-white rounded-3xl p-10 text-center border border-spiritual-gold/30 max-w-md mx-auto shadow-sm space-y-4">
+            <AlertCircle className="w-12 h-12 text-spiritual-gold mx-auto" />
+            <div>
+              <h3 className="text-lg font-serif font-bold text-spiritual-maroon">
+                {language === 'kn' ? 'ಗ್ಯಾಲರಿ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ' : 'Unable to reach Gallery'}
+              </h3>
+              <p className="text-sm text-neutral-600 mt-1">
+                {language === 'kn'
+                  ? 'ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.'
+                  : 'Please check your connection or try again in a few moments.'}
+              </p>
+            </div>
+            <button
+              onClick={() => setSelectedCategory(selectedCategory)}
+              className="inline-flex items-center px-4 py-2 bg-spiritual-maroon text-white text-xs font-bold rounded-full hover:bg-spiritual-maroon-dark transition"
+            >
+              {language === 'kn' ? 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ' : 'Retry'}
+            </button>
+          </div>
         ) : images.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center border border-spiritual-gold/30 max-w-md mx-auto">
-            <AlertCircle className="w-10 h-10 text-neutral-400 mx-auto mb-2" />
-            <p className="text-neutral-700 font-medium">No images found for this category.</p>
+          <div className="bg-white rounded-3xl p-12 text-center border border-spiritual-gold/30 max-w-md mx-auto shadow-sm">
+            <AlertCircle className="w-12 h-12 text-spiritual-gold mx-auto mb-3" />
+            <h3 className="text-lg font-serif font-bold text-spiritual-maroon mb-1">
+              {language === 'kn' ? 'ಇನ್ನೂ ಯಾವುದೇ ಗ್ಯಾಲರಿ ಚಿತ್ರಗಳು ಲಭ್ಯವಿಲ್ಲ.' : 'No gallery images available yet.'}
+            </h3>
+            <p className="text-sm text-neutral-500">
+              {language === 'kn'
+                ? 'ಈ ವರ್ಗಕ್ಕೆ ಶೀಘ್ರದಲ್ಲೇ ಹೊಸ ಫೋಟೋಗಳನ್ನು ಸೇರಿಸಲಾಗುತ್ತದೆ.'
+                : 'New photographs for this category will be uploaded shortly.'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

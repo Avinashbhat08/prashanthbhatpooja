@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/gallery",
+      "destination": "/api/gallery.js"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/health.js"
+    },
+    {
+      "source": "/((?!api/|uploads/|gallery/|prashanth-bhat.jpg|logo.svg|favicon.ico).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

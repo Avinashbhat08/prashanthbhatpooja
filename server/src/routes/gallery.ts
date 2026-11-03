@@ -99,9 +99,65 @@ router.get('/', async (req: Request, res: Response) => {
       };
     });
 
-    res.json(formatted);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch gallery images' });
+    res.json({
+      success: true,
+      data: formatted,
+    });
+  } catch (error: any) {
+    console.error('Error fetching gallery images:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch gallery images',
+      error: error?.message,
+    });
+  }
+});
+
+// GET /api/gallery/:id (Public: Get single gallery image)
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const img = await prisma.galleryImage.findUnique({
+      where: { id },
+    });
+
+    if (!img) {
+      return res.status(404).json({
+        success: false,
+        message: 'Gallery image not found',
+      });
+    }
+
+    let imageList: string[] = [];
+    if (img.imageUrl.startsWith('[') && img.imageUrl.endsWith(']')) {
+      try {
+        imageList = JSON.parse(img.imageUrl);
+      } catch (e) {
+        imageList = [img.imageUrl];
+      }
+    } else if (img.imageUrl.includes(',')) {
+      imageList = img.imageUrl.split(',').map((s) => s.trim());
+    } else {
+      imageList = [img.imageUrl];
+    }
+
+    const formatted = {
+      ...img,
+      images: imageList,
+      imageUrl: imageList[0] || img.imageUrl,
+    };
+
+    res.json({
+      success: true,
+      data: formatted,
+    });
+  } catch (error: any) {
+    console.error('Error fetching gallery image:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch gallery image',
+      error: error?.message,
+    });
   }
 });
 
@@ -120,7 +176,10 @@ router.post(
       }
 
       if (!imageUrl) {
-        return res.status(400).json({ message: 'Image file or image URL is required' });
+        return res.status(400).json({
+          success: false,
+          message: 'Image file or image URL is required',
+        });
       }
 
       const parsed = gallerySchema.safeParse({
@@ -129,17 +188,26 @@ router.post(
       });
 
       if (!parsed.success) {
-        return res.status(400).json({ message: parsed.error.errors[0].message });
+        return res.status(400).json({
+          success: false,
+          message: parsed.error.errors[0].message,
+        });
       }
 
       const created = await prisma.galleryImage.create({
         data: parsed.data,
       });
 
-      res.status(201).json(created);
+      res.status(201).json({
+        success: true,
+        data: created,
+      });
     } catch (error: any) {
       console.error('Error creating gallery image:', error);
-      res.status(500).json({ message: error.message || 'Failed to upload image' });
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to upload image',
+      });
     }
   }
 );
@@ -150,7 +218,10 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthenticatedRequest,
     const id = String(req.params.id);
     const parsed = gallerySchema.partial().safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ message: parsed.error.errors[0].message });
+      return res.status(400).json({
+        success: false,
+        message: parsed.error.errors[0].message,
+      });
     }
 
     const updated = await prisma.galleryImage.update({
@@ -158,9 +229,17 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthenticatedRequest,
       data: parsed.data,
     });
 
-    res.json(updated);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to update gallery image' });
+    res.json({
+      success: true,
+      data: updated,
+    });
+  } catch (error: any) {
+    console.error('Error updating gallery image:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update gallery image',
+      error: error?.message,
+    });
   }
 });
 
@@ -172,9 +251,17 @@ router.delete('/:id', authenticate, requireAdmin, async (req: AuthenticatedReque
       where: { id },
     });
 
-    res.json({ message: 'Gallery image deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to delete gallery image' });
+    res.json({
+      success: true,
+      message: 'Gallery image deleted successfully',
+    });
+  } catch (error: any) {
+    console.error('Error deleting gallery image:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete gallery image',
+      error: error?.message,
+    });
   }
 });
 

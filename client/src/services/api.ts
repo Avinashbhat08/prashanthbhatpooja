@@ -7,12 +7,76 @@ import {
   PoojaRequestRecord,
   WebsiteSettings,
 } from '../types/index.js';
+import {
+  fallbackCategories,
+  fallbackGallery,
+  fallbackPoojaItems,
+  fallbackSettings,
+} from './fallbackData.js';
 
-const API_BASE = '/api';
+// Centralized API Base URL configuration
+const envApiBase = import.meta.env.VITE_API_BASE_URL?.trim();
+const API_BASE = envApiBase ? envApiBase.replace(/\/+$/, '') : '/api';
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('pooja_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function getFallbackForEndpoint<T>(endpoint: string): T | undefined {
+  const [basePath, searchParamsStr] = endpoint.split('?');
+  const params = new URLSearchParams(searchParamsStr || '');
+
+  if (basePath === '/gallery') {
+    const category = params.get('category');
+    if (category && category !== 'All') {
+      if (category === 'Pooja Ceremonies') {
+        const ceremonies = [
+          'Pooja Ceremonies',
+          'Sathyanarayana Pooja',
+          'Sashtiapthapoorthi Shanti',
+          'Grihapravesha',
+          'Durga Namaskara',
+        ];
+        return fallbackGallery.filter((img) => ceremonies.includes(img.category)) as unknown as T;
+      }
+      return fallbackGallery.filter((img) => img.category === category) as unknown as T;
+    }
+    return fallbackGallery as unknown as T;
+  }
+
+  if (basePath.startsWith('/gallery/')) {
+    const id = basePath.replace('/gallery/', '');
+    const found = fallbackGallery.find((img) => img.id === id);
+    if (found) return found as unknown as T;
+  }
+
+  if (basePath === '/categories') {
+    return fallbackCategories as unknown as T;
+  }
+
+  if (basePath === '/pooja-items') {
+    const categoryId = params.get('categoryId');
+    const q = params.get('q')?.toLowerCase();
+    let items = fallbackPoojaItems;
+    if (categoryId) {
+      items = items.filter((item) => item.categoryId === categoryId);
+    }
+    if (q) {
+      items = items.filter(
+        (item) =>
+          item.nameEnglish.toLowerCase().includes(q) ||
+          item.nameKannada.toLowerCase().includes(q)
+      );
+    }
+    return items as unknown as T;
+  }
+
+  if (basePath === '/settings') {
+    return fallbackSettings as unknown as T;
+  }
+
+  return undefined;
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -22,18 +86,45 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     ...(options.headers || {}),
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const method = options.method?.toUpperCase() || 'GET';
 
-  const data = await response.json().catch(() => ({}));
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
-  if (!response.ok) {
-    throw new Error(data.message || `Request failed with status ${response.status}`);
+    const json = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const errorMsg = json.message || `Request failed with status ${response.status}`;
+      // On 404 or server failure for GET requests, check if fallback is available
+      if (method === 'GET') {
+        const fallback = getFallbackForEndpoint<T>(endpoint);
+        if (fallback !== undefined) {
+          console.info(`[API] Serving default data for ${endpoint} (${response.status})`);
+          return fallback;
+        }
+      }
+      throw new Error(errorMsg);
+    }
+
+    // Unwrap standardized API response: { success: true, data: [...] }
+    if (json && typeof json === 'object' && 'data' in json && json.success !== undefined) {
+      return json.data as T;
+    }
+
+    return json as T;
+  } catch (err: any) {
+    if (method === 'GET') {
+      const fallback = getFallbackForEndpoint<T>(endpoint);
+      if (fallback !== undefined) {
+        console.info(`[API] Serving offline fallback for ${endpoint}`);
+        return fallback;
+      }
+    }
+    throw err;
   }
-
-  return data as T;
 }
 
 export const api = {
@@ -125,6 +216,10 @@ export const api = {
     return request<GalleryImage[]>(`/gallery${query}`);
   },
 
+  async getGalleryImage(id: string) {
+    return request<GalleryImage>(`/gallery/${id}`);
+  },
+
   async createGalleryImage(data: {
     imageUrl: string;
     captionEnglish: string;
@@ -149,6 +244,9 @@ export const api = {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Upload failed');
+    if (data && typeof data === 'object' && 'data' in data && data.success !== undefined) {
+      return data.data as GalleryImage;
+    }
     return data as GalleryImage;
   },
 
@@ -184,4 +282,3 @@ export const api = {
     });
   },
 };
-
