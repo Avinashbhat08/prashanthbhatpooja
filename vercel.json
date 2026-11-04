@@ -59,6 +59,18 @@
       "destination": "/api/horoscope-requests.js?my=true"
     },
     {
+      "source": "/api/horoscope-requests/direct-generate",
+      "destination": "/api/horoscope-requests.js?action=direct-generate"
+    },
+    {
+      "source": "/api/horoscope-requests/:id/dasha/current",
+      "destination": "/api/horoscope-requests.js?id=:id&action=current-dasha"
+    },
+    {
+      "source": "/api/horoscope-requests/:id/dasha",
+      "destination": "/api/horoscope-requests.js?id=:id&action=dasha"
+    },
+    {
       "source": "/api/horoscope-requests/:id/calculate",
       "destination": "/api/horoscope-requests.js?id=:id&action=calculate"
     },

@@ -31,6 +31,7 @@ import { useLanguage } from '../../contexts/LanguageContext.js';
 import { SouthIndianChart } from '../horoscope/SouthIndianChart.js';
 import { NorthIndianChart } from '../horoscope/NorthIndianChart.js';
 import { HoroscopeReportView } from '../horoscope/HoroscopeReportView.js';
+import { VimshottariDashaView } from '../horoscope/VimshottariDashaView.js';
 
 export const AdminHoroscopeManagement: React.FC = () => {
   const { language } = useLanguage();
@@ -467,6 +468,17 @@ export const AdminHoroscopeManagement: React.FC = () => {
                         <SouthIndianChart chartData={activeDossier.calculationData.southIndianChart} />
                         <NorthIndianChart chartData={activeDossier.calculationData.northIndianChart} />
                       </div>
+
+                      {/* Vimshottari Dasha Hierarchy */}
+                      {activeDossier.calculationData.vimshottari && (
+                        <div className="bg-white rounded-2xl border border-spiritual-gold/30 p-5 space-y-4">
+                          <h4 className="font-serif font-black text-sm text-spiritual-maroon flex items-center gap-2 border-b border-spiritual-gold/20 pb-2">
+                            <Clock className="w-4 h-4 text-spiritual-saffron" />
+                            <span>Vimshottari Dasha Hierarchy & Predictions</span>
+                          </h4>
+                          <VimshottariDashaView dashaData={activeDossier.calculationData.vimshottari} />
+                        </div>
+                      )}
 
                       {/* Step 2: Dosha Review Section */}
                       <div className="bg-white rounded-2xl border border-spiritual-gold/30 p-5 space-y-4">

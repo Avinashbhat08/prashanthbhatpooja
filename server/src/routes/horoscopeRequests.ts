@@ -69,6 +69,64 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response) 
 });
 
 /**
+ * 1b. POST /api/horoscope-requests/direct-generate
+ * Admin directly generates an approved Vedic Kundali & Horoscope (with full Vimshottari Dasha)
+ */
+router.post('/direct-generate', authenticate, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const validatedData = createHoroscopeSchema.parse(req.body);
+    const userId = req.user!.id;
+
+    // Calculate full ephemeris, Kundali, Vimshottari Dasha, and Doshas
+    const calcResult = calculateHoroscope({
+      personName: validatedData.personName,
+      dateOfBirth: validatedData.dateOfBirth,
+      timeOfBirth: validatedData.timeOfBirth,
+      birthPlace: validatedData.birthPlace,
+    });
+
+    // Save directly as APPROVED
+    const request = await prisma.horoscopeRequest.create({
+      data: {
+        userId,
+        personName: validatedData.personName,
+        dateOfBirth: validatedData.dateOfBirth,
+        timeOfBirth: validatedData.timeOfBirth,
+        birthPlace: validatedData.birthPlace,
+        gender: validatedData.gender || null,
+        contactNumber: validatedData.contactNumber,
+        preferredLanguage: validatedData.preferredLanguage,
+        notes: validatedData.notes || null,
+        status: 'APPROVED',
+        assignedReviewer: req.user!.name,
+        approvedBy: req.user!.name,
+        approvedAt: new Date(),
+        calculationData: JSON.stringify(calcResult),
+        doshaAnalysis: JSON.stringify(calcResult.doshas),
+        remedies: JSON.stringify(calcResult.remedies),
+        purohitComments: 'ಸಕಲ ಗ್ರಹಾನುಗ್ರಹ ಸಿದ್ಧಿರಸ್ತು, ಶುಭಂ ಭವತು! ಧರ್ಮ, ಅರ್ಥ, ಕಾಮ, ಮೋಕ್ಷ ಚತುರ್ವಿಧ ಫಲಪ್ರಾಪ್ತಿರಸ್ತು.',
+      },
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Kundali and Vimshottari Dasha generated successfully',
+      data: {
+        ...request,
+        calculationData: calcResult,
+        doshaAnalysis: calcResult.doshas,
+        remedies: calcResult.remedies,
+      },
+    });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, errors: error.errors });
+    }
+    return res.status(500).json({ success: false, message: error.message || 'Generation error' });
+  }
+});
+
+/**
  * 2. GET /api/horoscope-requests/my
  * Authenticated customer retrieves their own requests
  */
@@ -438,6 +496,68 @@ router.post('/:id/reject', authenticate, requireAdmin, async (req: Authenticated
     });
   } catch (error: any) {
     return res.status(500).json({ success: false, message: error.message || 'Reject error' });
+  }
+});
+
+/**
+ * 9. GET /api/horoscope-requests/:id/dasha
+ * Retrieve full Vimshottari Dasha hierarchy
+ */
+router.get('/:id/dasha', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const request = await prisma.horoscopeRequest.findUnique({ where: { id } });
+    if (!request) {
+      return res.status(404).json({ success: false, message: 'Horoscope not found' });
+    }
+
+    const isAdmin = req.user!.role === 'ADMIN';
+    const isOwner = request.userId === req.user!.id;
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    if (!isAdmin && request.status !== 'APPROVED') {
+      return res.status(400).json({ success: false, message: 'Dasha calculations are under Purohit review' });
+    }
+
+    const calc = request.calculationData ? JSON.parse(request.calculationData) : null;
+    if (!calc || !calc.vimshottari) {
+      return res.status(404).json({ success: false, message: 'Vimshottari Dasha not yet calculated' });
+    }
+
+    return res.json({ success: true, data: calc.vimshottari });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * 10. GET /api/horoscope-requests/:id/dasha/current
+ * Retrieve current running Mahadasha, Antardasha, and Pratyantardasha as of reference date
+ */
+router.get('/:id/dasha/current', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const request = await prisma.horoscopeRequest.findUnique({ where: { id } });
+    if (!request) {
+      return res.status(404).json({ success: false, message: 'Horoscope not found' });
+    }
+
+    const isAdmin = req.user!.role === 'ADMIN';
+    const isOwner = request.userId === req.user!.id;
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    const calc = request.calculationData ? JSON.parse(request.calculationData) : null;
+    if (!calc || !calc.vimshottari) {
+      return res.status(404).json({ success: false, message: 'Vimshottari Dasha not available' });
+    }
+
+    return res.json({ success: true, data: calc.vimshottari.currentDasha });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 });
 

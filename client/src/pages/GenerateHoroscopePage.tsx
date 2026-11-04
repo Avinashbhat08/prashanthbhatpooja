@@ -28,12 +28,13 @@ import { HoroscopeReportView } from '../components/horoscope/HoroscopeReportView
 
 export const GenerateHoroscopePage: React.FC = () => {
   const { language, t } = useLanguage();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<'form' | 'my-requests'>('form');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
+  const [calculatingReqId, setCalculatingReqId] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<HoroscopeFormData>({
@@ -87,6 +88,15 @@ export const GenerateHoroscopePage: React.FC = () => {
 
     setSubmitting(true);
     try {
+      // If Admin, directly calculate and approve!
+      if (isAdmin) {
+        const res = await api.directGenerateHoroscope(formData);
+        showToast('Vedic Kundali & Vimshottari Dasha generated successfully!', 'success');
+        setSelectedReport(res);
+        fetchMyRequests();
+        return;
+      }
+
       const res = await api.createHoroscopeRequest(formData);
       setSubmittedId(res.id);
       showToast('Horoscope request submitted successfully to Shree Prashanth Bhat!', 'success');
@@ -103,9 +113,25 @@ export const GenerateHoroscopePage: React.FC = () => {
       });
       fetchMyRequests();
     } catch (err: any) {
-      showToast(err.message || 'Failed to submit horoscope request', 'error');
+      showToast(err.message || 'Failed to process horoscope request', 'error');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleAdminCalculateAndApprove = async (reqId: string) => {
+    setCalculatingReqId(reqId);
+    try {
+      showToast('Calculating Vedic planetary ephemeris & Vimshottari Dasha...', 'info');
+      await api.calculateHoroscope(reqId);
+      const approved = await api.approveHoroscope(reqId);
+      showToast('Kundali & Vimshottari Dasha calculated and approved!', 'success');
+      setSelectedReport(approved);
+      fetchMyRequests();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to calculate and approve horoscope', 'error');
+    } finally {
+      setCalculatingReqId(null);
     }
   };
 
@@ -207,8 +233,17 @@ export const GenerateHoroscopePage: React.FC = () => {
               : 'bg-white text-neutral-700 border border-spiritual-gold/40 hover:bg-spiritual-cream-100'
           }`}
         >
-          <PlusCircle className="w-4 h-4 text-spiritual-gold-light" />
-          <span>{language === 'kn' ? 'ಹೊಸ ಜಾತಕ ವಿನಂತಿ' : 'Submit New Request'}</span>
+          {isAdmin ? (
+            <>
+              <Flame className="w-4 h-4 text-spiritual-gold-light animate-pulse" />
+              <span>{language === 'kn' ? '⚡ ನೇರ ಕುಂಡಲಿ ಗಣನೆ' : '⚡ Generate Kundali (Instant)'}</span>
+            </>
+          ) : (
+            <>
+              <PlusCircle className="w-4 h-4 text-spiritual-gold-light" />
+              <span>{language === 'kn' ? 'ಹೊಸ ಜಾತಕ ವಿನಂತಿ' : 'Submit New Request'}</span>
+            </>
+          )}
         </button>
 
         <button
@@ -223,7 +258,15 @@ export const GenerateHoroscopePage: React.FC = () => {
           }`}
         >
           <ListOrdered className="w-4 h-4 text-spiritual-gold-light" />
-          <span>{language === 'kn' ? 'ನನ್ನ ಜಾತಕಗಳು ಹಾಗೂ ಸ್ಥಿತಿ' : 'My Requests & Status'}</span>
+          <span>
+            {isAdmin
+              ? language === 'kn'
+                ? 'ವಿನಂತಿಗಳು ಹಾಗೂ ಪರಿಶೀಲನೆ'
+                : 'Horoscope Requests & Review'
+              : language === 'kn'
+              ? 'ನನ್ನ ಜಾತಕಗಳು ಹಾಗೂ ಸ್ಥಿತಿ'
+              : 'My Requests & Status'}
+          </span>
           {myRequests.length > 0 && (
             <span className="px-2 py-0.5 rounded-full bg-spiritual-saffron text-white text-[10px] font-black">
               {myRequests.length}
@@ -437,11 +480,22 @@ export const GenerateHoroscopePage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-sm shadow-md hover:from-spiritual-saffron-600 hover:to-spiritual-maroon-dark transition active:scale-95 disabled:opacity-50"
+                  className="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white font-bold text-sm shadow-md hover:from-spiritual-saffron-600 hover:to-spiritual-maroon-dark transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {submitting
-                    ? language === 'kn' ? 'ಸಲ್ಲಿಸಲಾಗುತ್ತಿದೆ...' : 'Submitting Request...'
-                    : language === 'kn' ? 'ಜಾತಕ ವಿನಂತಿ ಸಲ್ಲಿಸಿ' : 'Submit Horoscope Request'}
+                  {isAdmin && <Flame className="w-4 h-4 text-spiritual-gold-light animate-pulse" />}
+                  <span>
+                    {submitting
+                      ? language === 'kn'
+                        ? 'ಗಣನೆ ಮಾಡಲಾಗುತ್ತಿದೆ...'
+                        : 'Calculating Ephemeris & Dasha...'
+                      : isAdmin
+                      ? language === 'kn'
+                        ? '⚡ ಕುಂಡಲಿ ಹಾಗೂ ವಿಂಶೋತ್ತರೀ ದಶಾ ಗಣನೆ ಮಾಡಿ'
+                        : '⚡ GENERATE VEDIC KUNDALI & HOROSCOPE'
+                      : language === 'kn'
+                      ? 'ಜಾತಕ ವಿನಂತಿ ಸಲ್ಲಿಸಿ'
+                      : 'Submit Horoscope Request'}
+                  </span>
                 </button>
               </div>
             </form>
@@ -503,15 +557,36 @@ export const GenerateHoroscopePage: React.FC = () => {
                         </span>
                       </div>
 
-                      {isApproved && (
-                        <button
-                          onClick={() => setSelectedReport(req)}
-                          className="min-h-[40px] px-4 py-2 rounded-xl bg-gradient-to-r from-spiritual-maroon to-spiritual-maroon-dark text-white text-xs font-bold shadow-sm flex items-center gap-1.5 active:scale-95 transition"
-                        >
-                          <Eye className="w-4 h-4 text-spiritual-gold-light" />
-                          <span>{language === 'kn' ? 'ಜಾತಕ ವರದಿ ವೀಕ್ಷಿಸಿ / ಡೌನ್‌ಲೋಡ್' : 'View Report & PDF'}</span>
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {isApproved && (
+                          <button
+                            onClick={() => setSelectedReport(req)}
+                            className="min-h-[40px] px-4 py-2 rounded-xl bg-gradient-to-r from-spiritual-maroon to-spiritual-maroon-dark text-white text-xs font-bold shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+                          >
+                            <Eye className="w-4 h-4 text-spiritual-gold-light" />
+                            <span>{language === 'kn' ? 'ಜಾತಕ ವರದಿ ವೀಕ್ಷಿಸಿ / ಡೌನ್‌ಲೋಡ್' : 'View Report & PDF'}</span>
+                          </button>
+                        )}
+
+                        {isAdmin && !isApproved && (
+                          <button
+                            onClick={() => handleAdminCalculateAndApprove(req.id)}
+                            disabled={calculatingReqId === req.id}
+                            className="min-h-[40px] px-4 py-2 rounded-xl bg-gradient-to-r from-spiritual-saffron to-spiritual-maroon text-white text-xs font-bold shadow-sm flex items-center gap-1.5 active:scale-95 transition disabled:opacity-50"
+                          >
+                            <Flame className="w-4 h-4 text-spiritual-gold-light animate-pulse" />
+                            <span>
+                              {calculatingReqId === req.id
+                                ? language === 'kn'
+                                  ? 'ಗಣನೆ ಮಾಡಲಾಗುತ್ತಿದೆ...'
+                                  : 'Calculating...'
+                                : language === 'kn'
+                                ? '⚡ ಕುಂಡಲಿ ಗಣನೆ ಮಾಡಿ (Generate Kundali)'
+                                : '⚡ Calculate & Generate Kundali'}
+                            </span>
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Birth Info summary */}
@@ -626,3 +701,4 @@ export const GenerateHoroscopePage: React.FC = () => {
     </div>
   );
 };
+

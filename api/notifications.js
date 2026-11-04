@@ -1,5 +1,5 @@
 import { setCorsHeaders, verifyToken } from './_lib/jwt.js';
-import { liveNotifications } from './horoscope-requests.js';
+import { notifications as liveNotifications } from './_lib/store.js';
 
 export default async function handler(req, res) {
   setCorsHeaders(res);
@@ -45,3 +45,4 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ success: false, message: 'Method Not Allowed' });
 }
+

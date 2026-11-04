@@ -142,6 +142,116 @@ export interface DashaPeriod {
   isBirthDasha: boolean;
 }
 
+export interface PratyantardashaItem {
+  id: string;
+  lord: string;
+  lordKannada: string;
+  startDate: string;
+  endDate: string;
+  durationDays: number;
+  status: 'COMPLETED' | 'RUNNING' | 'UPCOMING';
+  sequenceNumber: number;
+}
+
+export interface AntardashaItem {
+  id: string;
+  lord: string;
+  lordKannada: string;
+  startDate: string;
+  endDate: string;
+  durationYears: number;
+  durationMonths: number;
+  durationDays: number;
+  status: 'COMPLETED' | 'RUNNING' | 'UPCOMING';
+  sequenceNumber: number;
+  pratyantardashas: PratyantardashaItem[];
+}
+
+export interface MahadashaItem {
+  id: string;
+  lord: string;
+  lordKannada: string;
+  fullYears: number;
+  startDate: string;
+  endDate: string;
+  effectiveDurationYears: number;
+  isBirthDasha: boolean;
+  status: 'COMPLETED' | 'RUNNING' | 'UPCOMING';
+  sequenceNumber: number;
+  antardashas: AntardashaItem[];
+}
+
+export interface CurrentDashaPeriod {
+  lord: string;
+  lordKannada: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  elapsedDays: number;
+  remainingDays: number;
+  progressPercent: number;
+  formattedRemaining: string;
+  formattedRemainingKannada: string;
+}
+
+export interface CurrentDashaHierarchy {
+  asOfDate: string;
+  mahadasha: CurrentDashaPeriod;
+  antardasha: CurrentDashaPeriod;
+  pratyantardasha: CurrentDashaPeriod;
+  nextTransition: {
+    level: 'PRATYANTARDASHA' | 'ANTARDASHA' | 'MAHADASHA';
+    nextLord: string;
+    nextLordKannada: string;
+    transitionDate: string;
+  };
+}
+
+export interface DashaInterpretation {
+  category: 'CAREER' | 'FINANCE' | 'EDUCATION' | 'MARRIAGE' | 'FAMILY' | 'SPIRITUAL' | 'HEALTH';
+  categoryEnglish: string;
+  categoryKannada: string;
+  headlineEnglish: string;
+  headlineKannada: string;
+  analysisEnglish: string;
+  analysisKannada: string;
+  recommendedRemedyEnglish?: string;
+  recommendedRemedyKannada?: string;
+}
+
+export interface VimshottariDashaResult {
+  engineVersion: string;
+  ayanamsa: string;
+  yearConvention: string;
+  birthTimestamp: string;
+  birthNakshatra: {
+    id: number;
+    nameEnglish: string;
+    nameKannada: string;
+    pada: number;
+    lord: string;
+    lordKannada: string;
+    degreeInNakshatra: number;
+    formattedDegree: string;
+  };
+  birthDashaBalance: {
+    startingLord: string;
+    startingLordKannada: string;
+    fullDurationYears: number;
+    balanceFraction: number;
+    balanceYears: number;
+    balanceMonths: number;
+    balanceDays: number;
+    formattedBalanceEnglish: string;
+    formattedBalanceKannada: string;
+    elapsedFraction: number;
+    elapsedYears: number;
+  };
+  mahadashas: MahadashaItem[];
+  currentDasha: CurrentDashaHierarchy;
+  interpretations: DashaInterpretation[];
+}
+
 export interface DoshaItem {
   id: string;
   nameEnglish: string;
@@ -212,9 +322,16 @@ export interface HoroscopeCalculationResult {
     lord: string;
   };
 
+  panchanga?: {
+    tithi: { id: number; nameEnglish: string; nameKannada: string; paksha: string; pakshaKannada: string };
+    yoga: { id: number; nameEnglish: string; nameKannada: string };
+    karana: { id: number; nameEnglish: string; nameKannada: string };
+  };
+
   planets: PlanetPosition[];
   houses: { houseNumber: number; rashiId: number; rashiEnglish: string; rashiKannada: string; planets: string[] }[];
   dashas: DashaPeriod[];
+  vimshottari?: VimshottariDashaResult;
   southIndianChart: { rashiId: number; rashiEnglish: string; rashiKannada: string; isLagna: boolean; planets: string[] }[];
   northIndianChart: { houseNumber: number; rashiId: number; rashiEnglish: string; rashiKannada: string; planets: string[] }[];
   doshas: DoshaItem[];

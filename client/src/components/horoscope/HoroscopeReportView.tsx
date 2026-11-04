@@ -16,6 +16,7 @@ import {
 import { HoroscopeRequestRecord } from '../../types/index.js';
 import { SouthIndianChart } from './SouthIndianChart.js';
 import { NorthIndianChart } from './NorthIndianChart.js';
+import { VimshottariDashaView } from './VimshottariDashaView.js';
 import { useLanguage } from '../../contexts/LanguageContext.js';
 
 interface HoroscopeReportViewProps {
@@ -266,42 +267,46 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
           </div>
         </div>
 
-        {/* 5. VIMSHOTTARI DASHA PERIODS */}
+        {/* 5. VIMSHOTTARI DASHA PERIODS & ANALYSIS */}
         <div>
           <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
             <Clock className="w-4 h-4 text-spiritual-saffron" />
-            <span>{language === 'kn' ? 'ವಿಂಶೋತ್ತರಿ ಮಹಾದಶಾ ಕಾಲಾವಧಿ' : 'Vimshottari Mahadasha Sequence'}</span>
+            <span>{language === 'kn' ? 'ವಿಂಶೋತ್ತರಿ ದಶಾ ಕಾಲಗಣನೆ ಹಾಗೂ ಫಲ ವಿಶ್ಲೇಷಣೆ' : 'Vimshottari Dasha Hierarchy & Predictions'}</span>
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {calc.dashas.map((d, idx) => (
-              <div
-                key={idx}
-                className={`p-3 rounded-xl border text-xs flex flex-col justify-between ${
-                  d.isBirthDasha
-                    ? 'bg-spiritual-saffron-50 border-spiritual-saffron/40 shadow-xs ring-1 ring-spiritual-saffron/30'
-                    : 'bg-white border-spiritual-gold/30'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-spiritual-maroon text-sm">
-                    {language === 'kn' ? d.lordKannada : d.lord} Dasha
-                  </span>
-                  {d.isBirthDasha && (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-spiritual-saffron text-white">
-                      {language === 'kn' ? 'ಜನ್ಮ ದಶಾ' : 'Birth Dasha'}
+          {calc.vimshottari ? (
+            <VimshottariDashaView dashaData={calc.vimshottari} />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {calc.dashas?.map((d, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3 rounded-xl border text-xs flex flex-col justify-between ${
+                    d.isBirthDasha
+                      ? 'bg-spiritual-saffron-50 border-spiritual-saffron/40 shadow-xs ring-1 ring-spiritual-saffron/30'
+                      : 'bg-white border-spiritual-gold/30'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-extrabold text-spiritual-maroon text-sm">
+                      {language === 'kn' ? d.lordKannada : d.lord} Dasha
                     </span>
-                  )}
+                    {d.isBirthDasha && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-spiritual-saffron text-white">
+                        {language === 'kn' ? 'ಜನ್ಮ ದಶಾ' : 'Birth Dasha'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1 text-[11px] text-neutral-600">
+                    <span>{d.startDate}</span> <span className="text-neutral-400">➔</span> <span>{d.endDate}</span>
+                  </div>
+                  <div className="text-[10px] text-neutral-400 mt-1 font-medium">
+                    {d.durationYears} {language === 'kn' ? 'ವರ್ಷಗಳು' : 'Years'}
+                  </div>
                 </div>
-                <div className="mt-1 text-[11px] text-neutral-600">
-                  <span>{d.startDate}</span> <span className="text-neutral-400">➔</span> <span>{d.endDate}</span>
-                </div>
-                <div className="text-[10px] text-neutral-400 mt-1 font-medium">
-                  {d.durationYears} {language === 'kn' ? 'ವರ್ಷಗಳು' : 'Years'}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 6. REVIEWED VEDIC DOSHA ANALYSIS */}
@@ -429,3 +434,4 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
     </div>
   );
 };
+

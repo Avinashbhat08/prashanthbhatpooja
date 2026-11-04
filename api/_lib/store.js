@@ -143,3 +143,6 @@ export const defaultUsers = [
   },
 ];
 
+export const horoscopeRequests = [];
+export const notifications = [];
+

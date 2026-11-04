@@ -80,18 +80,18 @@ export const GalleryPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Category Filter Pills (Mobile friendly horizontal scroll) */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none justify-start sm:justify-center px-1">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center flex-shrink-0 ${
-                selectedCategory === cat
-                  ? 'bg-spiritual-maroon text-white shadow-md'
-                  : 'bg-white text-neutral-700 hover:bg-spiritual-cream-100 border border-spiritual-gold/30'
-              }`}
-            >
+          {/* Category Filter Pills (Mobile friendly horizontal scroll) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none justify-start sm:justify-center px-1">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`min-h-[38px] px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition active:scale-95 whitespace-nowrap ${
+                  selectedCategory === cat
+                    ? 'bg-spiritual-maroon text-white shadow-md'
+                    : 'bg-white text-neutral-700 hover:bg-spiritual-cream-100 border border-spiritual-gold/30'
+                }`}
+              >
               {cat === 'All' ? t('gallery_filter_all') : cat}
             </button>
           ))}

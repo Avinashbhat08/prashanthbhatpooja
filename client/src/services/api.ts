@@ -11,6 +11,8 @@ import {
   DoshaItem,
   RemedyItem,
   NotificationRecord,
+  VimshottariDashaResult,
+  CurrentDashaHierarchy,
 } from '../types/index.js';
 import {
   fallbackCategories,
@@ -306,6 +308,21 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  },
+
+  async directGenerateHoroscope(data: HoroscopeFormData) {
+    return request<HoroscopeRequestRecord>('/horoscope-requests/direct-generate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getHoroscopeDasha(id: string) {
+    return request<VimshottariDashaResult>(`/horoscope-requests/${id}/dasha`);
+  },
+
+  async getCurrentHoroscopeDasha(id: string) {
+    return request<CurrentDashaHierarchy>(`/horoscope-requests/${id}/dasha/current`);
   },
 
   async getMyHoroscopeRequests() {

@@ -126,3 +126,4 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ chartData, l
     </div>
   );
 };
+

@@ -1,10 +1,9 @@
 import { setCorsHeaders, verifyToken } from './_lib/jwt.js';
 import { calculateHoroscope } from './_lib/astronomy.js';
+import { horoscopeRequests, notifications } from './_lib/store.js';
 
-let liveHoroscopeRequests = [];
-let liveNotifications = [];
-
-export { liveNotifications };
+let liveHoroscopeRequests = horoscopeRequests;
+let liveNotifications = notifications;
 
 export default async function handler(req, res) {
   setCorsHeaders(res);
@@ -24,6 +23,35 @@ export default async function handler(req, res) {
 
   // GET Requests
   if (req.method === 'GET') {
+    // Sub-action: Full Vimshottari Dasha
+    if (id && action === 'dasha') {
+      const found = liveHoroscopeRequests.find((r) => r.id === String(id));
+      if (!found) return res.status(404).json({ success: false, message: 'Horoscope not found' });
+      if (user.role !== 'ADMIN' && found.userId !== user.id) {
+        return res.status(403).json({ success: false, message: 'Access denied' });
+      }
+      if (user.role !== 'ADMIN' && found.status !== 'APPROVED') {
+        return res.status(400).json({ success: false, message: 'Dasha calculations are under Purohit review' });
+      }
+      if (!found.calculationData || !found.calculationData.vimshottari) {
+        return res.status(404).json({ success: false, message: 'Vimshottari Dasha not yet calculated' });
+      }
+      return res.status(200).json({ success: true, data: found.calculationData.vimshottari });
+    }
+
+    // Sub-action: Current Dasha
+    if (id && action === 'current-dasha') {
+      const found = liveHoroscopeRequests.find((r) => r.id === String(id));
+      if (!found) return res.status(404).json({ success: false, message: 'Horoscope not found' });
+      if (user.role !== 'ADMIN' && found.userId !== user.id) {
+        return res.status(403).json({ success: false, message: 'Access denied' });
+      }
+      if (!found.calculationData || !found.calculationData.vimshottari) {
+        return res.status(404).json({ success: false, message: 'Vimshottari Dasha not available' });
+      }
+      return res.status(200).json({ success: true, data: found.calculationData.vimshottari.currentDasha });
+    }
+
     // Single request details
     if (id) {
       const found = liveHoroscopeRequests.find((r) => r.id === String(id));
@@ -95,6 +123,55 @@ export default async function handler(req, res) {
   // POST: Create request or Trigger Admin Action
   if (req.method === 'POST') {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+
+    // Action 0: Admin Direct Kundali Generation (Instant approved calculation)
+    if (action === 'direct-generate') {
+      if (user.role !== 'ADMIN') {
+        return res.status(403).json({ success: false, message: 'Forbidden: Admin access required' });
+      }
+      if (!body.personName || !body.dateOfBirth || !body.timeOfBirth || !body.birthPlace || !body.contactNumber) {
+        return res.status(400).json({ success: false, message: 'Missing required birth details' });
+      }
+
+      const calcResult = calculateHoroscope({
+        personName: body.personName,
+        dateOfBirth: body.dateOfBirth,
+        timeOfBirth: body.timeOfBirth,
+        birthPlace: body.birthPlace,
+      });
+
+      const newRecord = {
+        id: `hr-${Date.now()}`,
+        userId: user.id,
+        user: { id: user.id, name: user.name, email: user.email },
+        personName: body.personName,
+        dateOfBirth: body.dateOfBirth,
+        timeOfBirth: body.timeOfBirth,
+        birthPlace: body.birthPlace,
+        gender: body.gender || null,
+        contactNumber: body.contactNumber,
+        preferredLanguage: body.preferredLanguage || 'en',
+        notes: body.notes || null,
+        status: 'APPROVED',
+        assignedReviewer: user.name,
+        approvedBy: user.name,
+        approvedAt: new Date().toISOString(),
+        calculationData: calcResult,
+        doshaAnalysis: calcResult.doshas,
+        remedies: calcResult.remedies,
+        purohitComments: 'ಸಕಲ ಗ್ರಹಾನುಗ್ರಹ ಸಿದ್ಧಿರಸ್ತು, ಶುಭಂ ಭವತು! ಧರ್ಮ, ಅರ್ಥ, ಕಾಮ, ಮೋಕ್ಷ ಚತುರ್ವಿಧ ಫಲಪ್ರಾಪ್ತಿರಸ್ತು.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      liveHoroscopeRequests.unshift(newRecord);
+
+      return res.status(201).json({
+        success: true,
+        message: 'Kundali and Vimshottari Dasha generated successfully',
+        data: newRecord,
+      });
+    }
 
     // Action 1: Admin Ephemeris Calculation
     if (action === 'calculate' && id) {
@@ -284,3 +361,4 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ success: false, message: 'Method Not Allowed' });
 }
+

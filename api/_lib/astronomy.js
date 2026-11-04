@@ -1,4 +1,5 @@
-import * as Astronomy from 'astronomy-engine';
+import * as Astronomy from './astronomy-engine.js';
+import { calculateVimshottariDasha, NAKSHATRA_NAMES } from './dasha.js';
 
 export const CITY_COORDINATES = {
   bangalore: { lat: 12.9716, lon: 77.5946, tz: 5.5 },
@@ -84,6 +85,79 @@ export const DASHA_ORDER = [
   { lord: 'Jupiter', lordKannada: 'ಗುರು', years: 16 },
   { lord: 'Saturn', lordKannada: 'ಶನಿ', years: 19 },
   { lord: 'Mercury', lordKannada: 'ಬುಧ', years: 17 },
+];
+
+export const TITHI_NAMES = [
+  { id: 1, nameEnglish: 'Prathama', nameKannada: 'ಪ್ರಥಮ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 2, nameEnglish: 'Dwitiya', nameKannada: 'ದ್ವಿತೀಯಾ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 3, nameEnglish: 'Tritiya', nameKannada: 'ತೃತೀಯಾ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 4, nameEnglish: 'Chaturthi', nameKannada: 'ಚತುರ್ಥಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 5, nameEnglish: 'Panchami', nameKannada: 'ಪಂಚಮಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 6, nameEnglish: 'Shashti', nameKannada: 'ಷಷ್ಠಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 7, nameEnglish: 'Saptami', nameKannada: 'ಸಪ್ತಮಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 8, nameEnglish: 'Ashtami', nameKannada: 'ಅಷ್ಟಮಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 9, nameEnglish: 'Navami', nameKannada: 'ನವಮಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 10, nameEnglish: 'Dashami', nameKannada: 'ದಶಮಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 11, nameEnglish: 'Ekadashi', nameKannada: 'ಏಕಾದಶಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 12, nameEnglish: 'Dvadashi', nameKannada: 'ದ್ವಾದಶಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 13, nameEnglish: 'Trayodashi', nameKannada: 'ತ್ರಯೋದಶಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 14, nameEnglish: 'Chaturdashi', nameKannada: 'ಚತುರ್ದಶಿ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 15, nameEnglish: 'Poornima', nameKannada: 'ಪೂರ್ಣಿಮಾ', paksha: 'Shukla', pakshaKannada: 'ಶುಕ್ಲ ಪಕ್ಷ' },
+  { id: 16, nameEnglish: 'Prathama', nameKannada: 'ಪ್ರಥಮ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 17, nameEnglish: 'Dwitiya', nameKannada: 'ದ್ವಿತೀಯಾ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 18, nameEnglish: 'Tritiya', nameKannada: 'ತೃತೀಯಾ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 19, nameEnglish: 'Chaturthi', nameKannada: 'ಚತುರ್ಥಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 20, nameEnglish: 'Panchami', nameKannada: 'ಪಂಚಮಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 21, nameEnglish: 'Shashti', nameKannada: 'ಷಷ್ಠಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 22, nameEnglish: 'Saptami', nameKannada: 'ಸಪ್ತಮಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 23, nameEnglish: 'Ashtami', nameKannada: 'ಅಷ್ಟಮಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 24, nameEnglish: 'Navami', nameKannada: 'ನವಮಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 25, nameEnglish: 'Dashami', nameKannada: 'ದಶಮಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 26, nameEnglish: 'Ekadashi', nameKannada: 'ಏಕಾದಶಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 27, nameEnglish: 'Dvadashi', nameKannada: 'ದ್ವಾದಶಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 28, nameEnglish: 'Trayodashi', nameKannada: 'ತ್ರಯೋದಶಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 29, nameEnglish: 'Chaturdashi', nameKannada: 'ಚತುರ್ದಶಿ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+  { id: 30, nameEnglish: 'Amavasya', nameKannada: 'ಅಮಾವಾಸ್ಯೆ', paksha: 'Krishna', pakshaKannada: 'ಕೃಷ್ಣ ಪಕ್ಷ' },
+];
+
+export const YOGA_NAMES = [
+  { id: 1, nameEnglish: 'Vishkambha', nameKannada: 'ವಿಷ್ಕಂಭ' },
+  { id: 2, nameEnglish: 'Priti', nameKannada: 'ಪ್ರೀತಿ' },
+  { id: 3, nameEnglish: 'Ayushman', nameKannada: 'ಆಯುಷ್ಮಾನ್' },
+  { id: 4, nameEnglish: 'Saubhagya', nameKannada: 'ಸೌಭಾಗ್ಯ' },
+  { id: 5, nameEnglish: 'Shobhana', nameKannada: 'ಶೋಭನ' },
+  { id: 6, nameEnglish: 'Atiganda', nameKannada: 'ಅತಿಗಂಡ' },
+  { id: 7, nameEnglish: 'Sukarma', nameKannada: 'ಸುಕರ್ಮ' },
+  { id: 8, nameEnglish: 'Dhriti', nameKannada: 'ಧೃತಿ' },
+  { id: 9, nameEnglish: 'Shoola', nameKannada: 'ಶೂಲ' },
+  { id: 10, nameEnglish: 'Ganda', nameKannada: 'ಗಂಡ' },
+  { id: 11, nameEnglish: 'Vriddhi', nameKannada: 'ವೃದ್ಧಿ' },
+  { id: 12, nameEnglish: 'Dhruva', nameKannada: 'ಧ್ರುವ' },
+  { id: 13, nameEnglish: 'Vyaghata', nameKannada: 'ವ್ಯಾಘಾತ' },
+  { id: 14, nameEnglish: 'Harshana', nameKannada: 'ಹರ್ಷಣ' },
+  { id: 15, nameEnglish: 'Vajra', nameKannada: 'ವಜ್ರ' },
+  { id: 16, nameEnglish: 'Siddhi', nameKannada: 'ಸಿದ್ಧಿ' },
+  { id: 17, nameEnglish: 'Vyatipata', nameKannada: 'ವ್ಯತೀಪಾತ' },
+  { id: 18, nameEnglish: 'Variyan', nameKannada: 'ವರೀಯಾನ್' },
+  { id: 19, nameEnglish: 'Parigha', nameKannada: 'ಪರಿಘ' },
+  { id: 20, nameEnglish: 'Shiva', nameKannada: 'ಶಿವ' },
+  { id: 21, nameEnglish: 'Siddha', nameKannada: 'ಸಿದ್ಧ' },
+  { id: 22, nameEnglish: 'Sadhya', nameKannada: 'ಸಾಧ್ಯ' },
+  { id: 23, nameEnglish: 'Shubha', nameKannada: 'ಶುಭ' },
+  { id: 24, nameEnglish: 'Shukla', nameKannada: 'ಶುಕ್ಲ' },
+  { id: 25, nameEnglish: 'Brahma', nameKannada: 'ಬ್ರಹ್ಮ' },
+  { id: 26, nameEnglish: 'Indra', nameKannada: 'ಐಂದ್ರ' },
+  { id: 27, nameEnglish: 'Vaidhriti', nameKannada: 'ವೈಧೃತಿ' },
+];
+
+export const MOVABLE_KARANAS = [
+  { nameEnglish: 'Bava', nameKannada: 'ಬವ' },
+  { nameEnglish: 'Balava', nameKannada: 'ಬಾಲವ' },
+  { nameEnglish: 'Kaulava', nameKannada: 'ಕೌಲವ' },
+  { nameEnglish: 'Taitila', nameKannada: 'ತೈತಿಲ' },
+  { nameEnglish: 'Gara', nameKannada: 'ಗರ' },
+  { nameEnglish: 'Vanija', nameKannada: 'ವಣಿಜ' },
+  { nameEnglish: 'Vishti (Bhadra)', nameKannada: 'ವಿಷ್ಟಿ (ಭದ್ರಾ)' },
 ];
 
 function formatDMS(deg) {
@@ -308,41 +382,51 @@ export function calculateHoroscope({ personName, dateOfBirth, timeOfBirth, birth
     };
   });
 
-  // Vimshottari Dasha
-  const dashas = [];
-  const nakTotalDeg = 360 / 27;
-  const balanceFraction = 1 - (moon.longitude % nakTotalDeg) / nakTotalDeg;
-  const startLordName = nakshatra.lord;
-  const startLordIdx = DASHA_ORDER.findIndex((d) => d.lord === startLordName);
+  // Panchanga calculations
+  const tithiDiff = (moon.longitude - sun.longitude + 360) % 360;
+  const tithiIdx = Math.floor(tithiDiff / 12);
+  const tithi = TITHI_NAMES[tithiIdx % 30];
 
-  let currentYear = y + (m - 1) / 12 + d / 365.25;
-  const firstDuration = DASHA_ORDER[startLordIdx].years * balanceFraction;
+  const yogaSum = (sun.longitude + moon.longitude) % 360;
+  const yogaIdx = Math.floor(yogaSum / (360 / 27));
+  const yoga = YOGA_NAMES[yogaIdx % 27];
 
-  dashas.push({
-    lord: DASHA_ORDER[startLordIdx].lord,
-    lordKannada: DASHA_ORDER[startLordIdx].lordKannada,
-    startDate: `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
-    endDate: `${Math.floor(currentYear + firstDuration)}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
-    durationYears: Math.round(firstDuration * 10) / 10,
-    isBirthDasha: true,
+  const karanaIdx = Math.floor(tithiDiff / 6);
+  let karana = { id: 1, nameEnglish: 'Kimstughna', nameKannada: 'ಕಿಂಸ್ತುಘ್ನ' };
+  if (karanaIdx === 0) {
+    karana = { id: 1, nameEnglish: 'Kimstughna', nameKannada: 'ಕಿಂಸ್ತುಘ್ನ' };
+  } else if (karanaIdx >= 57) {
+    if (karanaIdx === 57) karana = { id: 58, nameEnglish: 'Shakuni', nameKannada: 'ಶಕುನಿ' };
+    else if (karanaIdx === 58) karana = { id: 59, nameEnglish: 'Chatushpada', nameKannada: 'ಚತುಷ್ಪಾದ' };
+    else karana = { id: 60, nameEnglish: 'Naga', nameKannada: 'ನಾಗ' };
+  } else {
+    const mov = MOVABLE_KARANAS[(karanaIdx - 1) % 7];
+    karana = { id: karanaIdx + 1, nameEnglish: mov.nameEnglish, nameKannada: mov.nameKannada };
+  }
+
+  const panchanga = { tithi, yoga, karana };
+
+  // Vimshottari Dasha calculation (Comprehensive Tree)
+  const planetaryHousesMap = {};
+  for (const p of planets) {
+    planetaryHousesMap[p.name] = { house: p.house, rashiId: p.rashiId, isRetrograde: p.isRetrograde };
+  }
+
+  const vimshottari = calculateVimshottariDasha({
+    moonSiderealLon: moon.longitude,
+    birthDateUtc,
+    planetaryHouses: planetaryHousesMap,
   });
 
-  currentYear += firstDuration;
-
-  for (let step = 1; step < 9; step++) {
-    const dInfo = DASHA_ORDER[(startLordIdx + step) % 9];
-    const startY = Math.floor(currentYear);
-    const endY = Math.floor(currentYear + dInfo.years);
-    dashas.push({
-      lord: dInfo.lord,
-      lordKannada: dInfo.lordKannada,
-      startDate: `${startY}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
-      endDate: `${endY}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
-      durationYears: dInfo.years,
-      isBirthDasha: false,
-    });
-    currentYear += dInfo.years;
-  }
+  // Backward compatible simplified dashas array
+  const dashas = vimshottari.mahadashas.map((m) => ({
+    lord: m.lord,
+    lordKannada: m.lordKannada,
+    startDate: m.startDate.split('T')[0],
+    endDate: m.endDate.split('T')[0],
+    durationYears: m.effectiveDurationYears,
+    isBirthDasha: m.isBirthDasha,
+  }));
 
   const southIndianChart = RASHIS.map((r) => {
     const occupants = planets
@@ -537,9 +621,11 @@ export function calculateHoroscope({ personName, dateOfBirth, timeOfBirth, birth
     suryaRashi,
     lagna,
     nakshatra,
+    panchanga,
     planets,
     houses,
     dashas,
+    vimshottari,
     southIndianChart,
     northIndianChart,
     doshas,

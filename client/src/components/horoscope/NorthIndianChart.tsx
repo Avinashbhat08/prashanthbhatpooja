@@ -119,3 +119,4 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({ chartData, l
     </div>
   );
 };
+
