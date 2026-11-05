@@ -392,4 +392,96 @@ export const api = {
       method: 'PATCH',
     });
   },
+
+  // Daily Panchanga
+  async getDailyPanchanga(date?: string, location?: string) {
+    const params = new URLSearchParams();
+    if (date) params.append('date', date);
+    if (location) params.append('location', location);
+    return request<any>(`/panchanga?${params.toString()}`);
+  },
+
+  // Shubha Muhurta Finder
+  async calculateMuhurtas(payload: {
+    eventType: string;
+    location?: string;
+    startDate: string;
+    endDate: string;
+    timeRangePreference?: string;
+  }) {
+    return request<any>('/muhurta/find', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async submitMuhurtaRequest(data: any) {
+    return request<any>('/muhurta/requests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getMyMuhurtaRequests() {
+    return request<any[]>('/muhurta/my-requests');
+  },
+
+  async getAllMuhurtaRequests(params?: { status?: string; search?: string }) {
+    const query = new URLSearchParams();
+    if (params?.status) query.append('status', params.status);
+    if (params?.search) query.append('search', params.search);
+    return request<any[]>(`/muhurta/all?${query.toString()}`);
+  },
+
+  async reviewMuhurtaRequest(id: string, data: any) {
+    return request<any>(`/muhurta/${id}/review`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteMuhurtaRequest(id: string) {
+    return request<{ message: string }>(`/muhurta/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Marriage Matching (Kundali Milan)
+  async calculateMarriageMatching(payload: any) {
+    return request<any>('/marriage-matching/calculate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async submitMarriageMatchingRequest(data: any) {
+    return request<any>('/marriage-matching/requests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getMyMarriageRequests() {
+    return request<any[]>('/marriage-matching/my-requests');
+  },
+
+  async getAllMarriageRequests(params?: { status?: string; search?: string }) {
+    const query = new URLSearchParams();
+    if (params?.status) query.append('status', params.status);
+    if (params?.search) query.append('search', params.search);
+    return request<any[]>(`/marriage-matching/all?${query.toString()}`);
+  },
+
+  async reviewMarriageRequest(id: string, data: any) {
+    return request<any>(`/marriage-matching/${id}/review`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteMarriageRequest(id: string) {
+    return request<{ message: string }>(`/marriage-matching/${id}`, {
+      method: 'DELETE',
+    });
+  },
 };

@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   Image as ImageIcon,
+  Heart,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext.js';
 import { api } from '../services/api.js';
@@ -336,7 +337,127 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. GALLERY PREVIEW SECTION */}
+      {/* 4. VEDIC ASTROLOGY & PANCHANGA SERVICES */}
+      <section className="py-16 bg-spiritual-cream-50 border-b border-spiritual-gold/25">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-spiritual-saffron-50 text-spiritual-maroon text-xs font-bold rounded-full border border-spiritual-saffron/30">
+              <Sparkles className="w-3.5 h-3.5 text-spiritual-saffron" />
+              <span>
+                {language === 'kn' ? 'ವೈದಿಕ ಜ್ಯೋತಿಷ್ಯ ಹಾಗೂ ಸಂಸ್ಕಾರಗಳು' : 'Vedic Astrology & Ephemeris'}
+              </span>
+            </div>
+            <h2 className="font-serif font-black text-3xl sm:text-4xl text-spiritual-maroon">
+              {language === 'kn' ? 'ಶಾಸ್ತ್ರೋಕ್ತ ಜ್ಯೋತಿಷ್ಯ ಸೇವೆಗಳು' : 'Astrology & Panchanga Services'}
+            </h2>
+            <p className="text-neutral-600 text-sm leading-relaxed">
+              {language === 'kn'
+                ? 'ಶ್ರೀ ಪ್ರಶಾಂತ್ ಭಟ್ ಅವರಿಂದ ನಿಖರವಾದ ಜನ್ಮ ಕುಂಡಲಿ, ದೈನಂದಿನ ಪಂಚಾಂಗ, ಅಷ್ಟಕೂಟ ವಿವಾಹ ಹೊಂದಾಣಿಕೆ ಹಾಗೂ ಶುಭ ಮುಹೂರ್ತ ನಿರ್ಣಯ.'
+                : 'Purohit-certified astronomical calculations: Birth Kundali with Vimshottari Dasha, Daily Panchanga, 36 Guna Milan, and Ceremony Muhurta Finder.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* 1. Kundali */}
+            <Link
+              to="/horoscope"
+              className="group bg-white rounded-2xl p-6 border border-spiritual-gold/30 shadow-xs hover:shadow-md transition flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-spiritual-cream-100 flex items-center justify-center text-spiritual-maroon group-hover:scale-105 transition">
+                  <Flame className="w-6 h-6 text-spiritual-saffron" />
+                </div>
+                <h3 className="font-serif font-bold text-lg text-spiritual-maroon group-hover:text-spiritual-saffron transition">
+                  {language === 'kn' ? 'ಜನ್ಮ ಕುಂಡಲಿ & ದಶಾ' : 'Vedic Kundali & Dasha'}
+                </h3>
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  {language === 'kn'
+                    ? 'ಲಾಹಿರಿ ಅಯನಾಂಶ, ದಕ್ಷಿಣ/ಉತ್ತರ ಭಾರತ ಕುಂಡಲಿ ಹಾಗೂ ವಿಂಶೋತ್ತರಿ ಮಹಾದಶಾ-ಅಂತರ್ದಶಾ ನಿಖರ ಗಣನೆ.'
+                    : 'Sidereal ephemeris, South/North Indian charts, Vimshottari Dasha, and bilingual Purohit report.'}
+                </p>
+              </div>
+              <div className="mt-5 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-bold text-spiritual-maroon group-hover:text-spiritual-saffron">
+                <span>{language === 'kn' ? 'ಕುಂಡಲಿ ರಚಿಸಿ' : 'Generate Kundali'}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+              </div>
+            </Link>
+
+            {/* 2. Daily Panchanga */}
+            <Link
+              to="/daily-panchanga"
+              className="group bg-white rounded-2xl p-6 border border-spiritual-gold/30 shadow-xs hover:shadow-md transition flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-spiritual-cream-100 flex items-center justify-center text-spiritual-maroon group-hover:scale-105 transition">
+                  <Calendar className="w-6 h-6 text-spiritual-saffron" />
+                </div>
+                <h3 className="font-serif font-bold text-lg text-spiritual-maroon group-hover:text-spiritual-saffron transition">
+                  {language === 'kn' ? 'ದೈನಂದಿನ ಪಂಚಾಂಗ' : 'Daily Panchanga'}
+                </h3>
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  {language === 'kn'
+                    ? 'ತಿಥಿ, ವಾರ, ನಕ್ಷತ್ರ, ಯೋಗ, ಕರಣ, ರಾಹುಕಾಲ, ಯಮಗಂಡ ಮತ್ತು ಅಭಿಜಿತ್ ಮುಹೂರ್ತದ ನಿತ್ಯ ಗಣನೆ.'
+                    : 'Real-time 5 limbs of time, solar/lunar astronomical cycles, Rahu Kalam, and Abhijit Muhurta.'}
+                </p>
+              </div>
+              <div className="mt-5 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-bold text-spiritual-maroon group-hover:text-spiritual-saffron">
+                <span>{language === 'kn' ? 'ಪಂಚಾಂಗ ನೋಡಿ' : 'View Panchanga'}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+              </div>
+            </Link>
+
+            {/* 3. Marriage Matching */}
+            <Link
+              to="/marriage-matching"
+              className="group bg-white rounded-2xl p-6 border border-spiritual-gold/30 shadow-xs hover:shadow-md transition flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-spiritual-cream-100 flex items-center justify-center text-spiritual-maroon group-hover:scale-105 transition">
+                  <Heart className="w-6 h-6 text-rose-600 fill-rose-500" />
+                </div>
+                <h3 className="font-serif font-bold text-lg text-spiritual-maroon group-hover:text-spiritual-saffron transition">
+                  {language === 'kn' ? 'ವಿವಾಹ ಹೊಂದಾಣಿಕೆ' : 'Marriage Matching'}
+                </h3>
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  {language === 'kn'
+                    ? '೩೬ ಗುಣಮಿಲನ, ಅಷ್ಟಕೂಟ, ನಾಡಿ, ರಜ್ಜು, ವೇಧಾ ಮತ್ತು ಕುಜ ದೋಷ ಪರಿಶೀಲನೆ ಹಾಗೂ ಶಾಸ್ತ್ರೋಕ್ತ ವರದಿ.'
+                    : 'Ashta Koota 36 Guna Milan, Rajju, Vedha, Manglik analysis, and certified Purohit recommendations.'}
+                </p>
+              </div>
+              <div className="mt-5 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-bold text-spiritual-maroon group-hover:text-spiritual-saffron">
+                <span>{language === 'kn' ? 'ಹೊಂದಾಣಿಕೆ ನೋಡಿ' : 'Check Compatibility'}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+              </div>
+            </Link>
+
+            {/* 4. Shubha Muhurta */}
+            <Link
+              to="/shubha-muhurta"
+              className="group bg-white rounded-2xl p-6 border border-spiritual-gold/30 shadow-xs hover:shadow-md transition flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-spiritual-cream-100 flex items-center justify-center text-spiritual-maroon group-hover:scale-105 transition">
+                  <Sparkles className="w-6 h-6 text-spiritual-saffron" />
+                </div>
+                <h3 className="font-serif font-bold text-lg text-spiritual-maroon group-hover:text-spiritual-saffron transition">
+                  {language === 'kn' ? 'ಶುಭ ಮುಹೂರ್ತ' : 'Shubha Muhurta'}
+                </h3>
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  {language === 'kn'
+                    ? 'ವಿವಾಹ, ಗೃಹಪ್ರವೇಶ, ನಾಮಕರಣ ಹಾಗೂ ನೂತನ ವ್ಯಾಪಾರಾರಂಭಕ್ಕೆ ಶಾಸ್ತ್ರೋಕ್ತ ಶುಭ ದಿನ ಮತ್ತು ಸಮಯ.'
+                    : 'Candidate auspicious date windows for weddings, housewarming, upanayana, and poojas.'}
+                </p>
+              </div>
+              <div className="mt-5 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-bold text-spiritual-maroon group-hover:text-spiritual-saffron">
+                <span>{language === 'kn' ? 'ಮುಹೂರ್ತ ಹುಡುಕಿ' : 'Find Muhurta'}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. GALLERY PREVIEW SECTION */}
       <section className="py-16 bg-white border-b border-spiritual-gold/25">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-4">

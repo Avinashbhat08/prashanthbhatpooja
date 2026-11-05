@@ -16,6 +16,9 @@ import { LoginPage } from './pages/LoginPage.js';
 import { RegisterPage } from './pages/RegisterPage.js';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.js';
 import { GenerateHoroscopePage } from './pages/GenerateHoroscopePage.js';
+import { DailyPanchangaPage } from './pages/DailyPanchangaPage.js';
+import { MarriageMatchingPage } from './pages/MarriageMatchingPage.js';
+import { ShubhaMuhurtaPage } from './pages/ShubhaMuhurtaPage.js';
 
 export const App: React.FC = () => {
   return (
@@ -42,6 +45,9 @@ export const App: React.FC = () => {
 
                   <Route path="/gallery" element={<GalleryPage />} />
                   <Route path="/horoscope" element={<GenerateHoroscopePage />} />
+                  <Route path="/daily-panchanga" element={<DailyPanchangaPage />} />
+                  <Route path="/marriage-matching" element={<MarriageMatchingPage />} />
+                  <Route path="/shubha-muhurta" element={<ShubhaMuhurtaPage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
 

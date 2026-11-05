@@ -25,8 +25,18 @@ import {
 } from '../types/index.js';
 import { useToast } from '../components/common/Toast.js';
 import { AdminHoroscopeManagement } from '../components/admin/AdminHoroscopeManagement.js';
+import { AdminMarriageManagement } from '../components/admin/AdminMarriageManagement.js';
+import { AdminMuhurtaManagement } from '../components/admin/AdminMuhurtaManagement.js';
+import { Heart, Sparkles } from 'lucide-react';
 
-type ActiveTab = 'items' | 'categories' | 'gallery' | 'horoscopes' | 'settings';
+type ActiveTab =
+  | 'items'
+  | 'categories'
+  | 'gallery'
+  | 'horoscopes'
+  | 'marriage'
+  | 'muhurta'
+  | 'settings';
 
 export const AdminDashboardPage: React.FC = () => {
   const { language, t } = useLanguage();
@@ -386,6 +396,30 @@ export const AdminDashboardPage: React.FC = () => {
           </button>
 
           <button
+            onClick={() => setActiveTab('marriage')}
+            className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
+              activeTab === 'marriage'
+                ? 'bg-spiritual-maroon text-white shadow'
+                : 'text-neutral-700 hover:bg-white bg-neutral-100/60'
+            }`}
+          >
+            <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+            <span>{language === 'kn' ? 'ವಿವಾಹ ಹೊಂದಾಣಿಕೆ' : 'Marriage Matching'}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('muhurta')}
+            className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
+              activeTab === 'muhurta'
+                ? 'bg-spiritual-maroon text-white shadow'
+                : 'text-neutral-700 hover:bg-white bg-neutral-100/60'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-spiritual-saffron" />
+            <span>{language === 'kn' ? 'ಶುಭ ಮುಹೂರ್ತ' : 'Shubha Muhurta'}</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('settings')}
             className={`min-h-[42px] flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap flex-shrink-0 active:scale-95 ${
               activeTab === 'settings'
@@ -615,7 +649,13 @@ export const AdminDashboardPage: React.FC = () => {
         {/* TAB 4: HOROSCOPE MANAGEMENT */}
         {activeTab === 'horoscopes' && <AdminHoroscopeManagement />}
 
-        {/* TAB 5: WEBSITE SETTINGS */}
+        {/* TAB 5: MARRIAGE MATCHING MANAGEMENT */}
+        {activeTab === 'marriage' && <AdminMarriageManagement />}
+
+        {/* TAB 6: SHUBHA MUHURTA MANAGEMENT */}
+        {activeTab === 'muhurta' && <AdminMuhurtaManagement />}
+
+        {/* TAB 7: WEBSITE SETTINGS */}
         {activeTab === 'settings' && (
           <div className="bg-white rounded-2xl p-6 sm:p-8 border border-spiritual-gold/30 shadow-sm max-w-2xl">
             <h3 className="font-serif font-bold text-lg text-spiritual-maroon mb-4">

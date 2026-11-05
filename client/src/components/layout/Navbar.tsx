@@ -16,6 +16,10 @@ import {
   Image as ImageIcon,
   Mail,
   ChevronRight,
+  ChevronDown,
+  Calendar,
+  Heart,
+  Sparkles,
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext.js';
 import { useAuth } from '../../contexts/AuthContext.js';
@@ -27,6 +31,7 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [astrologyMenuOpen, setAstrologyMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -54,17 +59,47 @@ export const Navbar: React.FC = () => {
   // Close drawer on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setAstrologyMenuOpen(false);
   }, [location.pathname, location.hash]);
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'kn' : 'en');
   };
 
-  const navLinks = [
+  const mainNavLinks = [
     { name: t('nav_home'), path: '/', icon: Home },
     { name: t('nav_about'), path: '/about', icon: UserCheck },
     { name: t('nav_samagri'), path: '/samagri', highlight: true, icon: ShoppingBag },
-    { name: t('nav_horoscope'), path: '/horoscope', icon: Flame },
+  ];
+
+  const astrologySubLinks = [
+    {
+      name: language === 'kn' ? 'ಜನ್ಮ ಕುಂಡಲಿ' : 'Vedic Kundali & Dasha',
+      path: '/horoscope',
+      icon: Flame,
+      badge: language === 'kn' ? 'ವಿಂಶೋತ್ತರಿ' : 'Vimshottari',
+    },
+    {
+      name: language === 'kn' ? 'ದೈನಂದಿನ ಪಂಚಾಂಗ' : 'Daily Panchanga',
+      path: '/daily-panchanga',
+      icon: Calendar,
+      badge: language === 'kn' ? 'ನಿತ್ಯ ಪಂಚಾಂಗ' : 'Daily',
+    },
+    {
+      name: language === 'kn' ? 'ವಿವಾಹ ಹೊಂದಾಣಿಕೆ' : 'Marriage Matching',
+      path: '/marriage-matching',
+      icon: Heart,
+      badge: language === 'kn' ? '೩೬ ಗುಣ' : '36 Gunas',
+    },
+    {
+      name: language === 'kn' ? 'ಶುಭ ಮುಹೂರ್ತ' : 'Shubha Muhurta',
+      path: '/shubha-muhurta',
+      icon: Sparkles,
+      badge: language === 'kn' ? 'ಶುಭ ಕಾಲ' : 'Auspicious',
+    },
+  ];
+
+  const secondaryNavLinks = [
     { name: t('nav_gallery'), path: '/gallery', icon: ImageIcon },
     { name: t('nav_contact'), path: '/#contact', icon: Mail },
   ];
@@ -75,6 +110,8 @@ export const Navbar: React.FC = () => {
     }
     return location.pathname === path;
   };
+
+  const isAstrologyActive = astrologySubLinks.some((l) => isActive(l.path));
 
   return (
     <>
@@ -139,8 +176,8 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* DESKTOP NAVIGATION LINKS (Hidden on Mobile) */}
-            <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
-              {navLinks.map((link) => (
+            <div className="hidden lg:flex items-center space-x-1 xl:space-x-1.5">
+              {mainNavLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
@@ -157,6 +194,78 @@ export const Navbar: React.FC = () => {
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-spiritual-saffron"></span>
                     </span>
                   )}
+                </Link>
+              ))}
+
+              {/* ASTROLOGY & PANCHANGA DROPDOWN (DESKTOP) */}
+              <div
+                className="relative"
+                onMouseEnter={() => setAstrologyMenuOpen(true)}
+                onMouseLeave={() => setAstrologyMenuOpen(false)}
+              >
+                <button
+                  type="button"
+                  onClick={() => setAstrologyMenuOpen(!astrologyMenuOpen)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                    isAstrologyActive
+                      ? 'text-spiritual-saffron-dark bg-spiritual-saffron-50 font-semibold border-b-2 border-spiritual-saffron'
+                      : 'text-neutral-700 hover:text-spiritual-saffron hover:bg-spiritual-cream-100'
+                  }`}
+                  aria-expanded={astrologyMenuOpen}
+                >
+                  <Flame className="w-4 h-4 text-spiritual-saffron" />
+                  <span>{language === 'kn' ? 'ಜ್ಯೋತಿಷ್ಯ & ಪಂಚಾಂಗ' : 'Vedic Astrology'}</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      astrologyMenuOpen ? 'rotate-180 text-spiritual-maroon' : 'text-neutral-500'
+                    }`}
+                  />
+                </button>
+
+                {astrologyMenuOpen && (
+                  <div className="absolute top-full left-0 w-64 mt-1 bg-white rounded-2xl shadow-xl border border-spiritual-gold/40 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-3 py-1.5 border-b border-spiritual-gold/20 text-[10px] uppercase font-bold text-spiritual-maroon tracking-wider">
+                      {language === 'kn' ? 'ಶಾಸ್ತ್ರೋಕ್ತ ಜ್ಯೋತಿಷ್ಯ ಸೇವೆಗಳು' : 'Vedic Astrology Modules'}
+                    </div>
+                    {astrologySubLinks.map((item) => {
+                      const ItemIcon = item.icon;
+                      const active = isActive(item.path);
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setAstrologyMenuOpen(false)}
+                          className={`flex items-center justify-between px-3.5 py-2.5 hover:bg-spiritual-cream-100 transition ${
+                            active ? 'bg-spiritual-saffron-50 text-spiritual-maroon font-bold' : 'text-neutral-700'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-spiritual-cream-200/80 flex items-center justify-center text-spiritual-maroon">
+                              <ItemIcon className="w-3.5 h-3.5 text-spiritual-saffron" />
+                            </div>
+                            <span className="text-xs font-semibold">{item.name}</span>
+                          </div>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-spiritual-gold/20 text-spiritual-maroon font-bold">
+                            {item.badge}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {secondaryNavLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(link.path)
+                      ? 'text-spiritual-saffron-dark bg-spiritual-saffron-50 font-semibold border-b-2 border-spiritual-saffron'
+                      : 'text-neutral-700 hover:text-spiritual-saffron hover:bg-spiritual-cream-100'
+                  }`}
+                >
+                  {link.name}
                 </Link>
               ))}
             </div>
@@ -326,7 +435,7 @@ export const Navbar: React.FC = () => {
 
               {/* Drawer Middle Section: Navigation Links */}
               <div className="flex-1 overflow-y-auto p-4 space-y-2 overscroll-contain">
-                {navLinks.map((link) => {
+                {mainNavLinks.map((link) => {
                   const Icon = link.icon;
                   const active = isActive(link.path);
                   return (
@@ -334,7 +443,7 @@ export const Navbar: React.FC = () => {
                       key={link.path}
                       to={link.path}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center justify-between min-h-[48px] px-4 py-3 rounded-xl text-sm font-bold transition-all duration-150 ${
+                      className={`flex items-center justify-between min-h-[46px] px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 ${
                         active
                           ? 'bg-spiritual-maroon text-white shadow-md'
                           : 'bg-white text-neutral-800 hover:bg-spiritual-cream-100 border border-spiritual-gold/25'
@@ -351,6 +460,63 @@ export const Navbar: React.FC = () => {
                       ) : (
                         <ChevronRight className={`w-4 h-4 opacity-50 ${active ? 'text-white' : 'text-neutral-400'}`} />
                       )}
+                    </Link>
+                  );
+                })}
+
+                {/* ASTROLOGY & PANCHANGA SECTION IN MOBILE DRAWER */}
+                <div className="pt-2 pb-1">
+                  <div className="px-2 text-[11px] font-black uppercase text-spiritual-maroon tracking-wider flex items-center gap-1.5 mb-1.5">
+                    <Flame className="w-3.5 h-3.5 text-spiritual-saffron" />
+                    <span>{language === 'kn' ? 'ಜ್ಯೋತಿಷ್ಯ & ಪಂಚಾಂಗ ಸೇವೆಗಳು' : 'Vedic Astrology Services'}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {astrologySubLinks.map((item) => {
+                      const Icon = item.icon;
+                      const active = isActive(item.path);
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`flex items-center justify-between min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition ${
+                            active
+                              ? 'bg-spiritual-saffron-50 text-spiritual-maroon border border-spiritual-saffron shadow-xs'
+                              : 'bg-white text-neutral-800 hover:bg-spiritual-cream-100 border border-spiritual-gold/20'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon className="w-4 h-4 text-spiritual-saffron" />
+                            <span>{item.name}</span>
+                          </div>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-spiritual-cream-200 text-spiritual-maroon font-bold">
+                            {item.badge}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {secondaryNavLinks.map((link) => {
+                  const Icon = link.icon;
+                  const active = isActive(link.path);
+                  return (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center justify-between min-h-[46px] px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 ${
+                        active
+                          ? 'bg-spiritual-maroon text-white shadow-md'
+                          : 'bg-white text-neutral-800 hover:bg-spiritual-cream-100 border border-spiritual-gold/25'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4 h-4 ${active ? 'text-spiritual-gold-light' : 'text-spiritual-saffron'}`} />
+                        <span>{link.name}</span>
+                      </div>
+                      <ChevronRight className={`w-4 h-4 opacity-50 ${active ? 'text-white' : 'text-neutral-400'}`} />
                     </Link>
                   );
                 })}

@@ -8,16 +8,18 @@ generator client {
 }
 
 model User {
-  id                String             @id @default(uuid())
+  id                String                    @id @default(uuid())
   name              String
-  email             String             @unique
+  email             String                    @unique
   passwordHash      String
-  role              String             @default("USER") // "ADMIN" or "USER"
-  isActive          Boolean            @default(true)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  role              String                    @default("USER") // "ADMIN" or "USER"
+  isActive          Boolean                   @default(true)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
   poojaRequests     PoojaRequest[]
   horoscopeRequests HoroscopeRequest[]
+  marriageRequests  MarriageMatchingRequest[]
+  muhurtaRequests   MuhurtaRequest[]
   notifications     Notification[]
 }
 
@@ -124,5 +126,55 @@ model Notification {
   isRead              Boolean  @default(false)
   createdAt           DateTime @default(now())
 }
+
+model MarriageMatchingRequest {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brideName         String
+  brideDob          String
+  brideTob          String
+  bridePlace        String
+  brideGender       String    @default("FEMALE")
+  groomName         String
+  groomDob          String
+  groomTob          String
+  groomPlace        String
+  groomGender       String    @default("MALE")
+  contactNumber     String
+  preferredLanguage String    @default("en")
+  notes             String?
+  status            String    @default("SUBMITTED") // "SUBMITTED" | "UNDER_REVIEW" | "CALCULATION_COMPLETED" | "APPROVED" | "REJECTED"
+  calculationData   String?   // JSON of Ashta Koota score, 8 kootas, Manglik, Rajju, Vedha
+  purohitComments   String?
+  approvedBy        String?
+  approvedAt        DateTime?
+  rejectionReason   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model MuhurtaRequest {
+  id                  String    @id @default(uuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType           String
+  preferredLocation   String
+  startDate           String
+  endDate             String
+  timeRangePreference String?
+  contactNumber       String
+  preferredLanguage   String    @default("en")
+  notes               String?
+  status              String    @default("SUBMITTED") // "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED"
+  candidateMuhurtas   String?   // JSON of candidate Muhurta dates, timings, panchang, reasons
+  purohitComments     String?
+  approvedBy          String?
+  approvedAt          DateTime?
+  rejectionReason     String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
 
 

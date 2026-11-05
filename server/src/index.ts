@@ -11,6 +11,9 @@ import poojaRequestRoutes from './routes/poojaRequests.js';
 import settingRoutes from './routes/settings.js';
 import horoscopeRequestRoutes from './routes/horoscopeRequests.js';
 import notificationRoutes from './routes/notifications.js';
+import panchangaRoutes from './routes/panchanga.js';
+import muhurtaRoutes from './routes/muhurta.js';
+import marriageMatchingRoutes from './routes/marriageMatching.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,6 +60,9 @@ app.use('/api/pooja-requests', poojaRequestRoutes);
 app.use('/api/settings', settingRoutes);
 app.use('/api/horoscope-requests', horoscopeRequestRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/panchanga', panchangaRoutes);
+app.use('/api/muhurta', muhurtaRoutes);
+app.use('/api/marriage-matching', marriageMatchingRoutes);
 
 // Health check endpoint (matches Step 10 specification)
 app.get('/api/health', (req, res) => {
