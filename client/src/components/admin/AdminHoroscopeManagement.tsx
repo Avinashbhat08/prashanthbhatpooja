@@ -7,11 +7,8 @@ import {
   AlertTriangle,
   Clock,
   User,
-  Shield,
   Eye,
   Edit2,
-  Trash2,
-  Plus,
   RefreshCw,
   XCircle,
   Printer,
@@ -23,8 +20,6 @@ import { api } from '../../services/api.js';
 import {
   HoroscopeRequestRecord,
   HoroscopeStatus,
-  DoshaItem,
-  RemedyItem,
 } from '../../types/index.js';
 import { useToast } from '../common/Toast.js';
 import { useLanguage } from '../../contexts/LanguageContext.js';
@@ -49,8 +44,6 @@ export const AdminHoroscopeManagement: React.FC = () => {
   const [approving, setApproving] = useState<boolean>(false);
 
   // Editable review states in modal
-  const [editableDoshas, setEditableDoshas] = useState<DoshaItem[]>([]);
-  const [editableRemedies, setEditableRemedies] = useState<RemedyItem[]>([]);
   const [purohitComments, setPurohitComments] = useState<string>('');
 
   // Reject Modal
@@ -86,12 +79,6 @@ export const AdminHoroscopeManagement: React.FC = () => {
 
   const openDossier = (req: HoroscopeRequestRecord) => {
     setActiveDossier(req);
-    setEditableDoshas(
-      req.doshaAnalysis || (req.calculationData ? req.calculationData.doshas : [])
-    );
-    setEditableRemedies(
-      req.remedies || (req.calculationData ? req.calculationData.remedies : [])
-    );
     setPurohitComments(
       req.purohitComments ||
         'ಸಕಲ ಗ್ರಹಾನುಗ್ರಹ ಸಿದ್ಧಿರಸ್ತು, ಶುಭಂ ಭವತು! ಧರ್ಮ, ಅರ್ಥ, ಕಾಮ, ಮೋಕ್ಷ ಚತುರ್ವಿಧ ಫಲಪ್ರಾಪ್ತಿರಸ್ತು.'
@@ -105,12 +92,6 @@ export const AdminHoroscopeManagement: React.FC = () => {
     try {
       const updated = await api.calculateHoroscope(activeDossier.id);
       setActiveDossier(updated);
-      setEditableDoshas(
-        updated.doshaAnalysis || (updated.calculationData ? updated.calculationData.doshas : [])
-      );
-      setEditableRemedies(
-        updated.remedies || (updated.calculationData ? updated.calculationData.remedies : [])
-      );
       showToast('Astronomical ephemeris calculated successfully!', 'success');
       loadRequests();
     } catch (e: any) {
@@ -125,8 +106,6 @@ export const AdminHoroscopeManagement: React.FC = () => {
     setSavingReview(true);
     try {
       const updated = await api.reviewHoroscope(activeDossier.id, {
-        doshas: editableDoshas,
-        remedies: editableRemedies,
         purohitComments,
         status: 'PENDING_APPROVAL',
       });
@@ -151,8 +130,6 @@ export const AdminHoroscopeManagement: React.FC = () => {
     try {
       // First save current edits
       await api.reviewHoroscope(activeDossier.id, {
-        doshas: editableDoshas,
-        remedies: editableRemedies,
         purohitComments,
       });
 
@@ -184,32 +161,6 @@ export const AdminHoroscopeManagement: React.FC = () => {
     }
   };
 
-  // Remedies management
-  const handleToggleRemedy = (idx: number) => {
-    setEditableRemedies((prev) =>
-      prev.map((r, i) => (i === idx ? { ...r, approved: !r.approved } : r))
-    );
-  };
-
-  const handleAddCustomRemedy = () => {
-    const newRem: RemedyItem = {
-      id: `custom-rem-${Date.now()}`,
-      titleEnglish: 'Special Archana & Sankalpa',
-      titleKannada: 'ವಿಶೇಷ ಸಂಕಲ್ಪ ಪೂಜೆ',
-      descriptionEnglish: 'Personalized temple archana and sacred offering for family harmony.',
-      descriptionKannada: 'ಕುಟುಂಬ ಶಾಂತಿ ಮತ್ತು ಮನಃಶಾಂತಿಗಾಗಿ ವಿಶೇಷ ಸಂಕಲ್ಪ ಪೂಜೆ.',
-      traditionalReasonEnglish: 'Custom Vedic blessing ordained by Purohit.',
-      traditionalReasonKannada: 'ಶಾಸ್ತ್ರೋಕ್ತ ಪುರೋಹಿತರ ವಿಶೇಷ ನಿರ್ದೇಶನ.',
-      recommended: true,
-      approved: true,
-    };
-    setEditableRemedies([...editableRemedies, newRem]);
-  };
-
-  const handleRemoveRemedy = (idx: number) => {
-    setEditableRemedies(editableRemedies.filter((_, i) => i !== idx));
-  };
-
   return (
     <div className="space-y-6">
       {/* Top Bar: Stats & Filters */}
@@ -221,7 +172,7 @@ export const AdminHoroscopeManagement: React.FC = () => {
               <span>Horoscope Management (ಜಾತಕ ನಿರ್ವಹಣೆ)</span>
             </h2>
             <p className="text-xs text-neutral-500 mt-0.5">
-              Purohit review workflow: Ephemeris calculation, Dosha inspection, Shanti approval, and report generation.
+              Purohit review workflow: Ephemeris calculation, Vimshottari Dasha review, blessings, and report generation.
             </p>
           </div>
 
@@ -392,8 +343,6 @@ export const AdminHoroscopeManagement: React.FC = () => {
                 <HoroscopeReportView
                   request={{
                     ...activeDossier,
-                    doshaAnalysis: editableDoshas,
-                    remedies: editableRemedies,
                     purohitComments,
                   }}
                   isAdminPreview
@@ -474,157 +423,13 @@ export const AdminHoroscopeManagement: React.FC = () => {
                         <div className="bg-white rounded-2xl border border-spiritual-gold/30 p-5 space-y-4">
                           <h4 className="font-serif font-black text-sm text-spiritual-maroon flex items-center gap-2 border-b border-spiritual-gold/20 pb-2">
                             <Clock className="w-4 h-4 text-spiritual-saffron" />
-                            <span>Vimshottari Dasha Hierarchy & Predictions</span>
+                            <span>Vimshottari Dasha Hierarchy</span>
                           </h4>
                           <VimshottariDashaView dashaData={activeDossier.calculationData.vimshottari} />
                         </div>
                       )}
 
-                      {/* Step 2: Dosha Review Section */}
-                      <div className="bg-white rounded-2xl border border-spiritual-gold/30 p-5 space-y-4">
-                        <div className="flex items-center justify-between border-b border-spiritual-gold/20 pb-2">
-                          <h4 className="font-serif font-black text-sm text-spiritual-maroon flex items-center gap-2">
-                            <Shield className="w-4 h-4 text-spiritual-saffron" />
-                            <span>Purohit Traditional Dosha Review</span>
-                          </h4>
-                          <span className="text-[11px] text-neutral-500 italic">
-                            *Admin has complete human oversight to confirm or dismiss findings.
-                          </span>
-                        </div>
-
-                        <div className="space-y-3">
-                          {editableDoshas.map((dosha, idx) => (
-                            <div
-                              key={dosha.id}
-                              className={`p-3 rounded-xl border text-xs space-y-2 ${
-                                dosha.confirmed ? 'bg-amber-50/60 border-amber-300' : 'bg-neutral-50 border-neutral-200'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <label className="flex items-center gap-2 cursor-pointer font-bold text-neutral-900">
-                                  <input
-                                    type="checkbox"
-                                    checked={dosha.confirmed}
-                                    onChange={(e) => {
-                                      const updated = [...editableDoshas];
-                                      updated[idx].confirmed = e.target.checked;
-                                      setEditableDoshas(updated);
-                                    }}
-                                    className="w-4 h-4 text-spiritual-maroon rounded focus:ring-spiritual-saffron"
-                                  />
-                                  <span>{dosha.nameEnglish} ({dosha.nameKannada})</span>
-                                </label>
-
-                                <select
-                                  value={dosha.severity}
-                                  onChange={(e) => {
-                                    const updated = [...editableDoshas];
-                                    updated[idx].severity = e.target.value as any;
-                                    setEditableDoshas(updated);
-                                  }}
-                                  className="px-2 py-1 rounded-lg border border-neutral-300 bg-white text-xs font-bold"
-                                >
-                                  <option value="None">None</option>
-                                  <option value="Low">Low</option>
-                                  <option value="Medium">Medium</option>
-                                  <option value="High">High</option>
-                                </select>
-                              </div>
-
-                              <p className="text-neutral-600 text-[11px] leading-relaxed">
-                                <strong>Astronomical Basis:</strong> {dosha.reasoningEnglish}
-                              </p>
-
-                              <div>
-                                <input
-                                  type="text"
-                                  placeholder="Purohit Reviewer Notes / Shastra Citation..."
-                                  value={dosha.reviewerNotes || ''}
-                                  onChange={(e) => {
-                                    const updated = [...editableDoshas];
-                                    updated[idx].reviewerNotes = e.target.value;
-                                    setEditableDoshas(updated);
-                                  }}
-                                  className="w-full px-3 py-1.5 rounded-lg border border-neutral-300 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-spiritual-saffron"
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Step 3: Shanti & Parihara Review */}
-                      <div className="bg-white rounded-2xl border border-spiritual-gold/30 p-5 space-y-4">
-                        <div className="flex items-center justify-between border-b border-spiritual-gold/20 pb-2">
-                          <h4 className="font-serif font-black text-sm text-spiritual-maroon flex items-center gap-2">
-                            <Flame className="w-4 h-4 text-spiritual-saffron" />
-                            <span>Recommended Shanti & Parihara Rituals</span>
-                          </h4>
-                          <button
-                            onClick={handleAddCustomRemedy}
-                            className="px-2.5 py-1 rounded-lg bg-spiritual-cream text-spiritual-maroon text-xs font-bold border border-spiritual-gold flex items-center gap-1 hover:bg-spiritual-gold/20"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>Add Remedy</span>
-                          </button>
-                        </div>
-
-                        <div className="space-y-3">
-                          {editableRemedies.map((rem, idx) => (
-                            <div
-                              key={rem.id}
-                              className={`p-3 rounded-xl border text-xs space-y-2 ${
-                                rem.approved ? 'bg-emerald-50/50 border-emerald-300' : 'bg-neutral-50 opacity-60'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <label className="flex items-center gap-2 cursor-pointer font-bold text-neutral-900">
-                                  <input
-                                    type="checkbox"
-                                    checked={rem.approved}
-                                    onChange={() => handleToggleRemedy(idx)}
-                                    className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
-                                  />
-                                  <span>{rem.titleEnglish} ({rem.titleKannada})</span>
-                                </label>
-                                <button
-                                  onClick={() => handleRemoveRemedy(idx)}
-                                  className="text-neutral-400 hover:text-rose-600 p-1"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <input
-                                  type="text"
-                                  placeholder="English Description"
-                                  value={rem.descriptionEnglish}
-                                  onChange={(e) => {
-                                    const updated = [...editableRemedies];
-                                    updated[idx].descriptionEnglish = e.target.value;
-                                    setEditableRemedies(updated);
-                                  }}
-                                  className="px-2.5 py-1 rounded-lg border border-neutral-300 text-xs bg-white"
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="ಕನ್ನಡ ವಿವರಣೆ"
-                                  value={rem.descriptionKannada}
-                                  onChange={(e) => {
-                                    const updated = [...editableRemedies];
-                                    updated[idx].descriptionKannada = e.target.value;
-                                    setEditableRemedies(updated);
-                                  }}
-                                  className="px-2.5 py-1 rounded-lg border border-neutral-300 text-xs bg-white font-kannada"
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Step 4: Purohit Sacred Comments */}
+                      {/* Step 2: Purohit Sacred Comments */}
                       <div className="bg-white rounded-2xl border border-spiritual-gold/30 p-5 space-y-2">
                         <label className="block text-xs font-bold text-spiritual-maroon">
                           Purohit Personal Comments & Sacred Blessings:

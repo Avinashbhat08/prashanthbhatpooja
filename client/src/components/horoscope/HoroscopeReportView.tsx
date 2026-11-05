@@ -80,8 +80,6 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
     );
   }
 
-  const doshas = request.doshaAnalysis || calc.doshas || [];
-  const remedies = request.remedies || calc.remedies || [];
   const formattedDob = formatBilingualDate(request.dateOfBirth);
 
   // Generate Navamsha (D9) Chart mock/calculation mapping
@@ -611,7 +609,7 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
           </div>
         </div>
 
-        {/* 10. VIMSHOTTARI DASHA HIERARCHY */}
+        {/* 9. VIMSHOTTARI DASHA HIERARCHY */}
         {calc.vimshottari && (
           <div>
             <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
@@ -622,99 +620,7 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
           </div>
         )}
 
-        {/* 11. REVIEWED VEDIC DOSHA ANALYSIS */}
-        <div>
-          <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-spiritual-saffron" />
-            <span>{pairText(SECTION_HEADINGS.doshaAnalysis.en, SECTION_HEADINGS.doshaAnalysis.kn, reportLangMode)}</span>
-          </h2>
-
-          <div className="space-y-3">
-            {doshas.map((dosha) => (
-              <div
-                key={dosha.id}
-                className={`p-4 rounded-xl border transition ${
-                  dosha.confirmed && dosha.detected
-                    ? 'bg-amber-50/70 border-amber-300'
-                    : 'bg-emerald-50/50 border-emerald-200'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
-                    {dosha.confirmed && dosha.detected ? (
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                    ) : (
-                      <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    )}
-                    <span className="font-bold text-sm text-spiritual-maroon">
-                      {pairText(dosha.nameEnglish, dosha.nameKannada, reportLangMode)}
-                    </span>
-                  </div>
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${
-                      dosha.confirmed && dosha.detected
-                        ? 'bg-amber-200 text-amber-900'
-                        : 'bg-emerald-100 text-emerald-800'
-                    }`}
-                  >
-                    {dosha.confirmed && dosha.detected
-                      ? `${dosha.severity} Severity`
-                      : pairText('Clear / Pacified', 'ದೋಷವಿಲ್ಲ (Clear)', reportLangMode)}
-                  </span>
-                </div>
-
-                <p className="text-xs text-neutral-700 leading-relaxed">
-                  {pairText(dosha.reasoningEnglish, dosha.reasoningKannada, reportLangMode)}
-                </p>
-
-                {dosha.cancellationInfo && (
-                  <div className="mt-2 text-xs font-semibold text-emerald-700 bg-emerald-100/60 p-2 rounded-lg">
-                    ✨ {pairText('Cancellation: ' + dosha.cancellationInfo, 'ದೋಷ ಪರಿಹಾರ: ' + dosha.cancellationInfo, reportLangMode)}
-                  </div>
-                )}
-
-                {dosha.reviewerNotes && (
-                  <div className="mt-2 text-xs italic text-spiritual-maroon-dark bg-spiritual-gold/15 p-2 rounded-lg border-l-2 border-spiritual-saffron">
-                    <strong>Purohit Note:</strong> {dosha.reviewerNotes}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 12. APPROVED SHANTI & PARIHARA RECOMMENDATIONS */}
-        <div>
-          <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
-            <Flame className="w-4 h-4 text-spiritual-saffron" />
-            <span>{pairText(SECTION_HEADINGS.shantiRemedies.en, SECTION_HEADINGS.shantiRemedies.kn, reportLangMode)}</span>
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {remedies
-              .filter((r) => r.approved)
-              .map((rem) => (
-                <div
-                  key={rem.id}
-                  className="p-4 rounded-xl border border-spiritual-gold/40 bg-gradient-to-br from-spiritual-cream-50 to-white shadow-xs space-y-2"
-                >
-                  <div className="flex items-center gap-2 font-bold text-spiritual-maroon text-sm border-b border-spiritual-gold/20 pb-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>{pairText(rem.titleEnglish, rem.titleKannada, reportLangMode)}</span>
-                  </div>
-                  <p className="text-xs text-neutral-700 leading-snug">
-                    {pairText(rem.descriptionEnglish, rem.descriptionKannada, reportLangMode)}
-                  </p>
-                  <div className="text-[11px] text-spiritual-saffron-800 bg-spiritual-saffron-50/70 p-2 rounded-lg font-medium">
-                    <strong>{pairText('Traditional Reason: ', 'ಶಾಸ್ತ್ರೋಕ್ತ ಕಾರಣ: ', reportLangMode)}</strong>
-                    {pairText(rem.traditionalReasonEnglish, rem.traditionalReasonKannada, reportLangMode)}
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-
-        {/* 13. PUROHIT'S PERSONAL BLESSINGS & VEDIC SEAL */}
+        {/* 10. PUROHIT'S PERSONAL BLESSINGS & VEDIC SEAL */}
         <div className="border-t-2 border-spiritual-gold/40 pt-6 mt-8 flex flex-col sm:flex-row items-center justify-between gap-6 bg-spiritual-cream-50/60 p-6 rounded-2xl">
           <div className="space-y-1 text-center sm:text-left">
             <span className="text-[10px] uppercase font-bold text-spiritual-saffron-700 tracking-wider">

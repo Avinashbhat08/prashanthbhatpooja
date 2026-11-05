@@ -12,33 +12,23 @@ import {
   ShieldCheck,
   Compass,
   ArrowRight,
-  BookOpen,
-  Briefcase,
-  Coins,
-  GraduationCap,
-  Heart,
-  Home,
-  Sun,
 } from 'lucide-react';
 import {
   VimshottariDashaResult,
   MahadashaItem,
   AntardashaItem,
   PratyantardashaItem,
-  DashaInterpretation,
 } from '../../types/index.js';
 import { useLanguage } from '../../contexts/LanguageContext.js';
 
 interface VimshottariDashaViewProps {
   dashaData: VimshottariDashaResult;
   isEditable?: boolean;
-  onUpdateInterpretations?: (interpretations: DashaInterpretation[]) => void;
 }
 
 export const VimshottariDashaView: React.FC<VimshottariDashaViewProps> = ({
   dashaData,
   isEditable = false,
-  onUpdateInterpretations,
 }) => {
   const { language } = useLanguage();
 
@@ -51,9 +41,6 @@ export const VimshottariDashaView: React.FC<VimshottariDashaViewProps> = ({
   const [selectedAntardasha, setSelectedAntardasha] = useState<AntardashaItem | null>(runningAntar || null);
 
   const [showAllTables, setShowAllTables] = useState<boolean>(false);
-  const [interpretations, setInterpretations] = useState<DashaInterpretation[]>(
-    dashaData.interpretations || []
-  );
 
   const cur = dashaData.currentDasha;
   const balance = dashaData.birthDashaBalance;
@@ -95,26 +82,6 @@ export const VimshottariDashaView: React.FC<VimshottariDashaViewProps> = ({
             {language === 'kn' ? 'ಮುಂದಿನ ದಶೆ' : 'Upcoming'}
           </span>
         );
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'CAREER':
-        return <Briefcase className="w-4 h-4 text-spiritual-maroon" />;
-      case 'FINANCE':
-        return <Coins className="w-4 h-4 text-amber-600" />;
-      case 'EDUCATION':
-        return <GraduationCap className="w-4 h-4 text-indigo-600" />;
-      case 'MARRIAGE':
-        return <Heart className="w-4 h-4 text-rose-600" />;
-      case 'FAMILY':
-        return <Home className="w-4 h-4 text-emerald-600" />;
-      case 'SPIRITUAL':
-        return <Flame className="w-4 h-4 text-spiritual-saffron" />;
-      case 'HEALTH':
-      default:
-        return <Sun className="w-4 h-4 text-amber-500" />;
     }
   };
 
@@ -484,53 +451,7 @@ export const VimshottariDashaView: React.FC<VimshottariDashaViewProps> = ({
         )}
       </div>
 
-      {/* 6. VEDIC ASTROLOGICAL INTERPRETATIONS (7 LIFE DOMAINS) */}
-      <div className="bg-white rounded-2xl border border-spiritual-gold/40 p-5 sm:p-7 shadow-xs">
-        <div className="flex items-center justify-between mb-4 border-b border-spiritual-gold/20 pb-3">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-spiritual-saffron" />
-            <h3 className="font-serif font-black text-base text-spiritual-maroon">
-              {language === 'kn'
-                ? 'ದಶಾ ಫಲ ವಿಶ್ಲೇಷಣೆ (೭ ಜೀವನ ಕ್ಷೇತ್ರಗಳು)'
-                : 'Vedic Dasha Interpretations (7 Life Spheres)'}
-            </h3>
-          </div>
-          <span className="text-xs text-neutral-500">
-            {language === 'kn' ? 'ಪುರೋಹಿತರ ಶಾಸ್ತ್ರೋಕ್ತ ಮಾರ್ಗದರ್ಶನ' : "Purohit's Sacred Analysis"}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {interpretations.map((item, idx) => (
-            <div
-              key={item.category}
-              className="p-4 rounded-xl border border-spiritual-gold/30 bg-spiritual-cream-50/40 space-y-2 flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-2 text-xs font-black text-spiritual-maroon mb-1">
-                  {getCategoryIcon(item.category)}
-                  <span>{language === 'kn' ? item.categoryKannada : item.categoryEnglish}</span>
-                </div>
-                <h5 className="font-bold text-xs sm:text-sm text-neutral-800">
-                  {language === 'kn' ? item.headlineKannada : item.headlineEnglish}
-                </h5>
-                <p className="text-xs text-neutral-600 leading-relaxed mt-1">
-                  {language === 'kn' ? item.analysisKannada : item.analysisEnglish}
-                </p>
-              </div>
-
-              {(item.recommendedRemedyEnglish || item.recommendedRemedyKannada) && (
-                <div className="text-[11px] bg-spiritual-saffron-50/80 text-spiritual-saffron-900 p-2 rounded-lg border border-spiritual-saffron/20 font-medium mt-2">
-                  <strong>{language === 'kn' ? 'ಶಾಂತಿ ಪರಿಹಾರ: ' : 'Remedy: '}</strong>
-                  {language === 'kn' ? item.recommendedRemedyKannada : item.recommendedRemedyEnglish}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 7. COMPLETE DASHA TABLE (EXPANDABLE) */}
+      {/* 6. COMPLETE DASHA TABLE (EXPANDABLE) */}
       <div className="border border-spiritual-gold/30 rounded-2xl overflow-hidden bg-white">
         <button
           onClick={() => setShowAllTables(!showAllTables)}

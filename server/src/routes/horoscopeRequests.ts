@@ -348,7 +348,7 @@ router.post('/:id/calculate', authenticate, requireAdmin, async (req: Authentica
 
 /**
  * 6. PUT /api/horoscope-requests/:id/review
- * Admin reviews and edits Doshas, Remedies, and Notes
+ * Admin reviews and edits Purohit Comments and Status
  */
 router.put('/:id/review', authenticate, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -377,7 +377,7 @@ router.put('/:id/review', authenticate, requireAdmin, async (req: AuthenticatedR
 
     return res.json({
       success: true,
-      message: 'Dosha and remedies review saved',
+      message: 'Purohit review saved',
       data: {
         ...updated,
         calculationData: updated.calculationData ? JSON.parse(updated.calculationData) : null,

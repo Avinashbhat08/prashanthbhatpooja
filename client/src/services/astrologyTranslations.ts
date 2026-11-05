@@ -99,12 +99,9 @@ export const SECTION_HEADINGS: Record<string, BilingualText> = {
   houseAnalysis: { en: '6. Twelve Houses (Bhava) Assessment', kn: '೬. ದ್ವಾದಶ ಭಾವಗಳ ಶಾಸ್ತ್ರೋಕ್ತ ವಿಶ್ಲೇಷಣೆ' },
   planetaryAspects: { en: '7. Planetary Aspects (Graha Drishti)', kn: '೭. ಗ್ರಹಗಳ ಪರಸ್ಪರ ದೃಷ್ಟಿ ವಿವರಣೆ' },
   auspiciousYogas: { en: '8. Auspicious Yogas in Birth Chart', kn: '೮. ಜನ್ಮ ಕುಂಡಲಿಯಲ್ಲಿರುವ ಶುಭ ಯೋಗಗಳು' },
-  doshaAnalysis: { en: '9. Vedic Dosha Verification & Cancellation', kn: '೯. ವೇದೋಕ್ತ ದೋಷ ಪರಿಶೀಲನೆ ಹಾಗೂ ಭಂಗ ವಿವರ' },
-  vimshottariDasha: { en: '10. Vimshottari Mahadasha Sequence (120 Years)', kn: '೧೦. ವಿಂಶೋತ್ತರೀ ಮಹಾದಶಾ ಕ್ರಮ (೧೨೦ ವರ್ಷಗಳು)' },
-  currentDasha: { en: '11. Active Dasha Hierarchy (Maha - Antar - Pratyantar)', kn: '೧೧. ಪ್ರಸ್ತುತ ನಡೆಯುತ್ತಿರುವ ದಶಾ ವಿವರಣೆ' },
-  lifePredictions: { en: '12. Astrological Predictions Across 7 Life Spheres', kn: '೧೨. ೭ ಜೀವನ ಕ್ಷೇತ್ರಗಳ ಶಾಸ್ತ್ರೋಕ್ತ ಫಲಾದೇಶ' },
-  shantiRemedies: { en: '13. Approved Shanti & Parihara Rituals', kn: '೧೩. ಅನುಮೋದಿತ ಶಾಂತಿ ಹೋಮ ಹಾಗೂ ಪರಿಹಾರ ಪೂಜೆಗಳು' },
-  purohitBlessings: { en: '14. Purohit Sacred Observations & Authorization Seal', kn: '೧೪. ಪುರೋಹಿತರ ಆಶೀರ್ವಚನ ಹಾಗೂ ಅಧಿಕೃತ ಮುದ್ರೆ' },
+  vimshottariDasha: { en: '9. Vimshottari Mahadasha Sequence (120 Years)', kn: '೯. ವಿಂಶೋತ್ತರೀ ಮಹಾದಶಾ ಕ್ರಮ (೧೨೦ ವರ್ಷಗಳು)' },
+  currentDasha: { en: '10. Active Dasha Hierarchy (Maha - Antar - Pratyantar)', kn: '೧೦. ಪ್ರಸ್ತುತ ನಡೆಯುತ್ತಿರುವ ದಶಾ ವಿವರಣೆ' },
+  purohitBlessings: { en: '11. Purohit Sacred Observations & Authorization Seal', kn: '೧೧. ಪುರೋಹಿತರ ಆಶೀರ್ವಚನ ಹಾಗೂ ಅಧಿಕೃತ ಮುದ್ರೆ' },
 };
 
 export const COMMON_TERMS: Record<string, BilingualText> = {

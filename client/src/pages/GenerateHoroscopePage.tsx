@@ -216,8 +216,8 @@ export const GenerateHoroscopePage: React.FC = () => {
 
         <p className="text-xs sm:text-sm text-neutral-600 max-w-2xl mx-auto">
           {language === 'kn'
-            ? 'ವೇದ ಬ್ರಹ್ಮ ಶ್ರೀ ಪ್ರಶಾಂತ್ ಭಟ್ ಅವರಿಂದ ಶಾಸ್ತ್ರೋಕ್ತ ಗ್ರಹ ಸ್ಪಷ್ಟ, ಕುಂಡಲಿ ಚಕ್ರಗಳು ಹಾಗೂ ದೋಷ ಪರಿಹಾರ ವಿಶ್ಲೇಷಣೆ.'
-            : 'Purohit-managed astronomical ephemeris calculation, South/North Indian Kundali charts, Dosha verification, and traditional Shanti recommendations.'}
+            ? 'ವೇದ ಬ್ರಹ್ಮ ಶ್ರೀ ಪ್ರಶಾಂತ್ ಭಟ್ ಅವರಿಂದ ಶಾಸ್ತ್ರೋಕ್ತ ಗ್ರಹ ಸ್ಪಷ್ಟ, ಕುಂಡಲಿ ಚಕ್ರಗಳು ಹಾಗೂ ವಿಂಶೋತ್ತರೀ ಮಹಾದಶಾ ವಿವರಣೆ.'
+            : 'Purohit-managed astronomical ephemeris calculation, South/North Indian Kundali charts, planetary positions, and authentic Vimshottari Dasha.'}
         </p>
       </div>
 
@@ -343,7 +343,7 @@ export const GenerateHoroscopePage: React.FC = () => {
               <p className="text-xs sm:text-sm text-emerald-800 max-w-lg mx-auto">
                 {language === 'kn'
                   ? 'ಶ್ರೀ ಪ್ರಶಾಂತ್ ಭಟ್ ಅವರು ನಿಮ್ಮ ಜನ್ಮ ಕುಂಡಲಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಶಾಸ್ತ್ರೋಕ್ತ ಅನುಮೋದನೆ ನೀಡಲಿದ್ದಾರೆ.'
-                  : 'Your birth details have been recorded. Shree Prashanth Bhat will conduct the astronomical calculations and traditional Dosha review.'}
+                  : 'Your birth details have been recorded. Shree Prashanth Bhat will conduct the astronomical calculations and complete the horoscope dossier.'}
               </p>
               <div className="inline-block p-3 rounded-xl bg-white border border-emerald-300 font-mono text-xs font-bold text-emerald-950">
                 Request ID: {submittedId}
