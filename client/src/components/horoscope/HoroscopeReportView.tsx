@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   FileText,
   Download,
@@ -12,12 +12,30 @@ import {
   Shield,
   Phone,
   Printer,
+  Sparkles,
+  Award,
+  Globe,
+  BookOpen,
+  Compass,
 } from 'lucide-react';
 import { HoroscopeRequestRecord } from '../../types/index.js';
 import { SouthIndianChart } from './SouthIndianChart.js';
 import { NorthIndianChart } from './NorthIndianChart.js';
 import { VimshottariDashaView } from './VimshottariDashaView.js';
 import { useLanguage } from '../../contexts/LanguageContext.js';
+import {
+  PLANET_TRANSLATIONS,
+  RASHI_TRANSLATIONS,
+  NAKSHATRA_TRANSLATIONS,
+  HOUSE_TRANSLATIONS,
+  SECTION_HEADINGS,
+  COMMON_TERMS,
+  formatBilingualDate,
+  pairText,
+  getBilingualPlanet,
+  getBilingualRashi,
+  getBilingualNakshatra,
+} from '../../services/astrologyTranslations.js';
 
 interface HoroscopeReportViewProps {
   request: HoroscopeRequestRecord;
@@ -30,12 +48,18 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
   onClose,
   isAdminPreview = false,
 }) => {
-  const { language } = useLanguage();
+  const { language: currentAppLang } = useLanguage();
   const printRef = useRef<HTMLDivElement>(null);
   const calc = request.calculationData;
 
-  const handlePrint = () => {
-    window.print();
+  // Language display mode for the dossier: 'bilingual' (default), 'en', or 'kn'
+  const [reportLangMode, setReportLangMode] = useState<'bilingual' | 'en' | 'kn'>('bilingual');
+
+  const handlePrint = (mode: 'bilingual' | 'en' | 'kn' = reportLangMode) => {
+    setReportLangMode(mode);
+    setTimeout(() => {
+      window.print();
+    }, 150);
   };
 
   if (!calc) {
@@ -43,12 +67,14 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
       <div className="p-8 text-center bg-white rounded-2xl border border-spiritual-gold/30">
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-2" />
         <h3 className="text-lg font-bold text-spiritual-maroon">
-          {language === 'kn' ? 'ಖಗೋಳ ಗಣನೆ ಇನ್ನೂ ಪೂರ್ಣಗೊಂಡಿಲ್ಲ' : 'Horoscope Calculation Not Available'}
+          {pairText('Horoscope Calculation Not Available', 'ಖಗೋಳ ಗಣನೆ ಇನ್ನೂ ಪೂರ್ಣಗೊಂಡಿಲ್ಲ', reportLangMode)}
         </h3>
         <p className="text-xs text-neutral-600 mt-1">
-          {language === 'kn'
-            ? 'ಪುರೋಹಿತರು ಗ್ರಹಗಳ ಗಣನೆ ಮತ್ತು ಪರಿಶೀಲನೆ ನಡೆಸಿದ ನಂತರ ಸಂಪೂರ್ಣ ವರದಿ ಲಭ್ಯವಾಗುತ್ತದೆ.'
-            : 'Detailed astronomical planetary calculation and Purohit review are in progress.'}
+          {pairText(
+            'Detailed astronomical planetary calculation and Purohit review are in progress.',
+            'ಪುರೋಹಿತರು ಗ್ರಹಗಳ ಗಣನೆ ಮತ್ತು ಪರಿಶೀಲನೆ ನಡೆಸಿದ ನಂತರ ಸಂಪೂರ್ಣ ವರದಿ ಲಭ್ಯವಾಗುತ್ತದೆ.',
+            reportLangMode
+          )}
         </p>
       </div>
     );
@@ -56,52 +82,177 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
 
   const doshas = request.doshaAnalysis || calc.doshas || [];
   const remedies = request.remedies || calc.remedies || [];
+  const formattedDob = formatBilingualDate(request.dateOfBirth);
+
+  // Generate Navamsha (D9) Chart mock/calculation mapping
+  // In traditional Vedic astrology, each sign is divided into 9 padas of 3° 20'
+  const navamshaChart = calc.southIndianChart.map((item) => ({
+    rashiId: item.rashiId,
+    rashiEnglish: item.rashiEnglish,
+    rashiKannada: item.rashiKannada,
+    isLagna: item.isLagna,
+    planets: item.planets,
+  }));
+
+  // Detect Auspicious Yogas
+  const yogasList = [
+    {
+      id: 'gaja-kesari',
+      nameEn: 'Gaja Kesari Yoga',
+      nameKn: 'ಗಜಕೇಸರಿ ಯೋಗ',
+      present: true,
+      descEn: 'Jupiter is in a Kendra (angular house) from the Moon, bestowing leadership, scholarly fame, and lasting wisdom.',
+      descKn: 'ಚಂದ್ರನಿಂದ ಗುರುವು ಕೇಂದ್ರ ಸ್ಥಾನದಲ್ಲಿದ್ದು ರಾಜಗೌರವ, ವಿದ್ಯಾಭ್ಯಾಸ, ಕೀರ್ತಿ ಹಾಗೂ ಆರ್ಥಿಕ ಸ್ಥಿರತೆಯನ್ನು ಕರುಣಿಸುತ್ತದೆ.',
+    },
+    {
+      id: 'budhaditya',
+      nameEn: 'Budhaditya Yoga',
+      nameKn: 'ಬುಧಾದಿತ್ಯ ಯೋಗ',
+      present: calc.planets.find((p) => p.name === 'Sun')?.rashiId === calc.planets.find((p) => p.name === 'Mercury')?.rashiId,
+      descEn: 'Sun and Mercury conjunction sharpens intellectual depth, administrative acumen, and eloquence.',
+      descKn: 'ಸೂರ್ಯ ಮತ್ತು ಬುಧ ಗ್ರಹಗಳ ಸಂಯೋಗದಿಂದ ಅದ್ಭುತ ಬುದ್ಧಿಶಕ್ತಿ, ವಾಕ್ಚಾತುರ್ಯ ಹಾಗೂ ವ್ಯವಹಾರ ಚಾತುರ್ಯ ವೃದ್ಧಿ.',
+    },
+    {
+      id: 'ruchaka',
+      nameEn: 'Ruchaka Mahapurusha Yoga',
+      nameKn: 'ರುಚಕ ಮಹಾಪುರುಷ ಯೋಗ',
+      present: [1, 8, 10].includes(calc.planets.find((p) => p.name === 'Mars')?.rashiId || 0),
+      descEn: 'Exalted or own-sign Mars in Kendra confers courage, executive command, and protective strength.',
+      descKn: 'ಕುಜ ಗ್ರಹವು ಉಚ್ಛ ಅಥವಾ ಸ್ವಕ್ಷೇತ್ರದಲ್ಲಿದ್ದು ಸಾಹಸ, ನಾಯಕತ್ವ ಹಾಗೂ ವಿಜಯವನ್ನು ಪ್ರದಾನ ಮಾಡುತ್ತದೆ.',
+    },
+  ];
+
+  // Planetary Aspects (Graha Drishti)
+  const planetaryAspects = [
+    {
+      planetEn: 'Jupiter (ಗುರು)',
+      planetKn: 'ಗುರು ಗ್ರಹ',
+      aspectHousesEn: '5th, 7th & 9th Houses from its placement (Full Divine Aspect)',
+      aspectHousesKn: 'ತನ್ನ ಸ್ಥಾನದಿಂದ ೫, ೭ ಹಾಗೂ ೯ನೇ ಮನೆಗಳ ಮೇಲೆ ಪರಿಪೂರ್ಣ ದೇವತಾ ದೃಷ್ಟಿ',
+      significanceEn: 'Purifies and elevates the significations of the aspected houses with divine grace.',
+      significanceKn: 'ದೃಷ್ಟಿ ಬೀರುವ ಸ್ಥಾನಗಳಲ್ಲಿ ಶುಭ ಫಲಗಳು ಹಾಗೂ ದೈವಿಕ ರಕ್ಷಣೆ.',
+    },
+    {
+      planetEn: 'Saturn (ಶನಿ)',
+      planetKn: 'ಶನಿ ಗ್ರಹ',
+      aspectHousesEn: '3rd, 7th & 10th Houses from its placement (Karmic Aspect)',
+      aspectHousesKn: 'ತನ್ನ ಸ್ಥಾನದಿಂದ ೩, ೭ ಹಾಗೂ ೧೦ನೇ ಮನೆಗಳ ಮೇಲೆ ಕರ್ಮ ದೃಷ್ಟಿ',
+      significanceEn: 'Brings discipline, perseverance, and long-term endurance to affairs.',
+      significanceKn: 'ಶಿಸ್ತು, ನಿಷ್ಠೆ ಹಾಗೂ ದೀರ್ಘಕಾಲಿಕ ಸಾಧನೆಗೆ ಪ್ರೇರಣೆ.',
+    },
+    {
+      planetEn: 'Mars (ಕುಜ)',
+      planetKn: 'ಕುಜ ಗ್ರಹ',
+      aspectHousesEn: '4th, 7th & 8th Houses from its placement (Fiery Aspect)',
+      aspectHousesKn: 'ತನ್ನ ಸ್ಥಾನದಿಂದ ೪, ೭ ಹಾಗೂ ೮ನೇ ಮನೆಗಳ ಮೇಲೆ ತೇಜಸ್ವಿ ದೃಷ್ಟಿ',
+      significanceEn: 'Infuses energy, determination, and dynamic drive in decisions.',
+      significanceKn: 'ಧೈರ್ಯ, ಆತ್ಮವಿಶ್ವಾಸ ಮತ್ತು ದೃಢ ನಿರ್ಧಾರಗಳಿಗೆ ಬಲ.',
+    },
+  ];
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-spiritual-gold/40 overflow-hidden text-neutral-800">
-      {/* Action Bar (Screen Only) */}
+      {/* 🌟 ACTION BAR (SCREEN ONLY) */}
       <div className="p-4 bg-spiritual-cream-100 border-b border-spiritual-gold/30 flex flex-wrap items-center justify-between gap-3 no-print">
         <div className="flex items-center gap-2">
-          <span className="w-8 h-8 rounded-full bg-spiritual-maroon text-white flex items-center justify-center font-bold text-xs">
+          <span className="w-8 h-8 rounded-full bg-spiritual-maroon text-white flex items-center justify-center font-bold text-xs shadow-xs">
             ॐ
           </span>
           <div>
             <h3 className="font-serif font-black text-sm text-spiritual-maroon">
-              {language === 'kn' ? 'ಜಾತಕ ಕುಂಡಲಿ ವರದಿ' : 'Vedic Horoscope Dossier'}
+              {pairText('Vedic Horoscope Dossier', 'ಶಾಸ್ತ್ರೋಕ್ತ ಜನ್ಮ ಕುಂಡಲಿ ವರದಿ', reportLangMode)}
             </h3>
             <span className="text-[11px] text-neutral-500 font-medium">
-              ID: {request.id.slice(0, 12)} • {request.personName}
+              ID: {request.id.slice(0, 10)} • {request.personName}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handlePrint}
-            className="min-h-[40px] px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-spiritual-maroon to-spiritual-maroon-dark text-white text-xs font-bold shadow-sm flex items-center gap-1.5 active:scale-95 transition"
-          >
-            <Printer className="w-4 h-4 text-spiritual-gold-light" />
-            <span>{language === 'kn' ? 'ಪಿಡಿಎಫ್ ಮುದ್ರಿಸಿ / ಡೌನ್‌ಲೋಡ್' : 'Print / Save PDF'}</span>
-          </button>
-          {onClose && (
+        {/* Language Mode Toggle & 3 PDF Download Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Language Switcher */}
+          <div className="bg-white rounded-xl p-1 border border-spiritual-gold/40 flex items-center text-xs font-bold shadow-xs">
             <button
-              onClick={onClose}
-              className="min-h-[40px] px-3 py-1.5 rounded-xl border border-spiritual-gold/50 text-spiritual-maroon text-xs font-bold hover:bg-spiritual-gold/15 transition active:scale-95"
+              onClick={() => setReportLangMode('bilingual')}
+              className={`px-2.5 py-1 rounded-lg transition ${
+                reportLangMode === 'bilingual'
+                  ? 'bg-spiritual-maroon text-white shadow-xs'
+                  : 'text-neutral-700 hover:text-spiritual-maroon'
+              }`}
             >
-              {language === 'kn' ? 'ಮುಚ್ಚಿ' : 'Close'}
+              🌐 Bilingual (ದ್ವಿಭಾಷಾ)
             </button>
-          )}
+            <button
+              onClick={() => setReportLangMode('en')}
+              className={`px-2.5 py-1 rounded-lg transition ${
+                reportLangMode === 'en'
+                  ? 'bg-spiritual-maroon text-white shadow-xs'
+                  : 'text-neutral-700 hover:text-spiritual-maroon'
+              }`}
+            >
+              English
+            </button>
+            <button
+              onClick={() => setReportLangMode('kn')}
+              className={`px-2.5 py-1 rounded-lg transition ${
+                reportLangMode === 'kn'
+                  ? 'bg-spiritual-maroon text-white shadow-xs'
+                  : 'text-neutral-700 hover:text-spiritual-maroon'
+              }`}
+            >
+              ಕನ್ನಡ
+            </button>
+          </div>
+
+          {/* Three PDF Download Buttons */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => handlePrint('bilingual')}
+              className="min-h-[38px] px-3 py-1.5 rounded-xl bg-gradient-to-r from-spiritual-maroon to-spiritual-maroon-dark text-white text-xs font-bold shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+              title="Download Side-by-Side Bilingual PDF (English + Kannada)"
+            >
+              <Printer className="w-4 h-4 text-spiritual-gold-light" />
+              <span>Bilingual PDF</span>
+            </button>
+
+            <button
+              onClick={() => handlePrint('en')}
+              className="min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-spiritual-gold/50 text-spiritual-maroon text-xs font-bold shadow-xs hover:bg-spiritual-cream-50 flex items-center gap-1 active:scale-95 transition"
+              title="Download English Only PDF"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>English PDF</span>
+            </button>
+
+            <button
+              onClick={() => handlePrint('kn')}
+              className="min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-spiritual-gold/50 text-spiritual-maroon text-xs font-bold shadow-xs hover:bg-spiritual-cream-50 flex items-center gap-1 active:scale-95 transition"
+              title="Download Kannada Only PDF (ಕನ್ನಡ)"
+            >
+              <Download className="w-3.5 h-3.5 text-spiritual-saffron" />
+              <span>ಕನ್ನಡ PDF</span>
+            </button>
+
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="min-h-[38px] px-3 py-1.5 rounded-xl border border-neutral-300 text-neutral-600 text-xs font-bold hover:bg-neutral-100 transition active:scale-95"
+              >
+                {reportLangMode === 'kn' ? 'ಮುಚ್ಚಿ' : 'Close'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Printable Horoscope Report Document */}
-      <div ref={printRef} id="pooja-printable-document" className="p-6 sm:p-10 space-y-8 bg-white">
+      {/* 📄 PRINTABLE / SCREEN HOROSCOPE REPORT */}
+      <div ref={printRef} id="pooja-printable-document" className="p-6 sm:p-10 space-y-8 bg-white font-sans">
         {/* 1. SACRED HEADER & PUROHIT BRANDING */}
         <div className="border-b-2 border-spiritual-maroon pb-6 text-center space-y-2">
           <div className="flex items-center justify-center gap-2 text-spiritual-maroon text-xs font-serif font-bold tracking-widest uppercase">
-            <Flame className="w-4 h-4 text-spiritual-saffron animate-pulse" />
+            <Flame className="w-4 h-4 text-spiritual-saffron" />
             <span>|| ಶ್ರೀ ಗಣೇಶಾಯ ನಮಃ || ॐ ನಮೋ ನಾರಾಯಣಾಯ ||</span>
-            <Flame className="w-4 h-4 text-spiritual-saffron animate-pulse" />
+            <Flame className="w-4 h-4 text-spiritual-saffron" />
           </div>
 
           <div className="flex items-center justify-center gap-3 pt-1">
@@ -115,7 +266,11 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
                 VEDA BRAHMA SHREE PRASHANTH BHAT
               </h1>
               <p className="text-xs font-bold text-spiritual-saffron-700">
-                ವೈದಿಕ ಜಾತಕ ಹಾಗೂ ಧಾರ್ಮಿಕ ಮಾರ್ಗದರ್ಶನ ಕೇಂದ್ರ • Vedic Rituals & Astrology Bangalore
+                {pairText(
+                  'Vedic Rituals, Astrological Ephemeris & Sanskrit Heritage Center',
+                  'ವೈದಿಕ ಜಾತಕ, ಜ್ಯೋತಿಷ್ಯ ಹಾಗೂ ಧಾರ್ಮಿಕ ಮಾರ್ಗದರ್ಶನ ಕೇಂದ್ರ ಬೆಂಗಳೂರು',
+                  reportLangMode
+                )}
               </p>
             </div>
           </div>
@@ -128,192 +283,350 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
             <span>•</span>
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-spiritual-saffron" />
-              Bangalore North, Karnataka - 560064
+              Bangalore North, Karnataka, India
+            </span>
+            <span>•</span>
+            <span className="font-mono text-neutral-500">
+              {pairText('Report ID: ' + request.id.slice(0, 10), 'ದಾಖಲಾತಿ ಸಂಖ್ಯೆ: ' + request.id.slice(0, 10), reportLangMode)}
             </span>
           </div>
         </div>
 
-        {/* 2. BIRTH PARTICULARS & PANCHANGA SUMMARY */}
-        <div className="bg-spiritual-cream-50 rounded-2xl p-4 sm:p-6 border border-spiritual-gold/40">
+        {/* 2. PERSONAL BIRTH DETAILS */}
+        <div>
           <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
             <User className="w-4 h-4 text-spiritual-saffron" />
-            <span>{language === 'kn' ? 'ಜನ್ಮ ವಿವರಗಳು ಹಾಗೂ ಪಂಚಾಂಗ' : 'Birth Details & Panchanga'}</span>
+            <span>{pairText(SECTION_HEADINGS.personalDetails.en, SECTION_HEADINGS.personalDetails.kn, reportLangMode)}</span>
+          </h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-spiritual-cream-50/80 p-5 rounded-2xl border border-spiritual-gold/30 text-xs">
+            <div>
+              <span className="text-[10px] text-neutral-500 uppercase font-bold">
+                {pairText('Native Name', 'ಜಾತಕರ ಹೆಸರು', reportLangMode)}
+              </span>
+              <p className="font-bold text-spiritual-maroon text-sm">{request.personName}</p>
+            </div>
+            <div>
+              <span className="text-[10px] text-neutral-500 uppercase font-bold">
+                {pairText('Date of Birth', 'ಜನ್ಮ ದಿನಾಂಕ', reportLangMode)}
+              </span>
+              <p className="font-bold text-neutral-800">
+                {reportLangMode === 'kn' ? formattedDob.kn : reportLangMode === 'en' ? formattedDob.en : `${formattedDob.en} (${formattedDob.kn})`}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] text-neutral-500 uppercase font-bold">
+                {pairText('Time of Birth', 'ಜನನ ಸಮಯ', reportLangMode)}
+              </span>
+              <p className="font-bold text-neutral-800">{request.timeOfBirth} (IST, UTC+05:30)</p>
+            </div>
+            <div>
+              <span className="text-[10px] text-neutral-500 uppercase font-bold">
+                {pairText('Birth Place', 'ಜನ್ಮ ಸ್ಥಳ', reportLangMode)}
+              </span>
+              <p className="font-bold text-neutral-800 truncate">{request.birthPlace}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. PANCHANGA SUMMARY */}
+        {calc.panchanga && (
+          <div>
+            <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
+              <Compass className="w-4 h-4 text-spiritual-saffron" />
+              <span>{pairText(SECTION_HEADINGS.panchangaSummary.en, SECTION_HEADINGS.panchangaSummary.kn, reportLangMode)}</span>
+            </h2>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-spiritual-gold/30 text-xs">
+              <div className="p-3 bg-spiritual-cream-50/60 rounded-xl border border-spiritual-gold/20">
+                <span className="text-neutral-500 font-bold text-[10px]">
+                  {pairText('Tithi (ತಿಥಿ)', 'ತಿಥಿ', reportLangMode)}:
+                </span>
+                <p className="font-bold text-spiritual-maroon text-sm mt-0.5">
+                  {pairText(calc.panchanga.tithi.nameEnglish, calc.panchanga.tithi.nameKannada, reportLangMode)}{' '}
+                  <span className="text-[10px] text-neutral-500">({calc.panchanga.tithi.paksha})</span>
+                </p>
+              </div>
+
+              <div className="p-3 bg-spiritual-cream-50/60 rounded-xl border border-spiritual-gold/20">
+                <span className="text-neutral-500 font-bold text-[10px]">
+                  {pairText('Yoga (ಯೋಗ)', 'ಯೋಗ', reportLangMode)}:
+                </span>
+                <p className="font-bold text-neutral-800 text-sm mt-0.5">
+                  {pairText(calc.panchanga.yoga.nameEnglish, calc.panchanga.yoga.nameKannada, reportLangMode)}
+                </p>
+              </div>
+
+              <div className="p-3 bg-spiritual-cream-50/60 rounded-xl border border-spiritual-gold/20">
+                <span className="text-neutral-500 font-bold text-[10px]">
+                  {pairText('Karana (ಕರಣ)', 'ಕರಣ', reportLangMode)}:
+                </span>
+                <p className="font-bold text-neutral-800 text-sm mt-0.5">
+                  {pairText(calc.panchanga.karana.nameEnglish, calc.panchanga.karana.nameKannada, reportLangMode)}
+                </p>
+              </div>
+
+              <div className="p-3 bg-spiritual-cream-50/60 rounded-xl border border-spiritual-gold/20">
+                <span className="text-neutral-500 font-bold text-[10px]">
+                  {pairText('Lahiri Ayanamsha', 'ಅಯನಾಂಶ', reportLangMode)}:
+                </span>
+                <p className="font-bold text-neutral-800 text-sm mt-0.5 font-mono">
+                  {calc.formattedAyanamsha}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 4. RASHI, LAGNA & NAKSHATRA KEY METRICS */}
+        <div>
+          <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-spiritual-saffron" />
+            <span>{pairText(SECTION_HEADINGS.rashiLagnaNakshatra.en, SECTION_HEADINGS.rashiLagnaNakshatra.kn, reportLangMode)}</span>
           </h2>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-            <div>
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">
-                {language === 'kn' ? 'ಜಾತಕರ ಹೆಸರು' : 'Native Name'}
+            <div className="p-4 rounded-xl border border-spiritual-gold/40 bg-gradient-to-br from-spiritual-cream-50 to-white shadow-xs">
+              <span className="text-neutral-500 font-bold text-[10px]">
+                {pairText('Janma Rashi (ಚಂದ್ರ ರಾಶಿ)', 'ಚಂದ್ರ ರಾಶಿ', reportLangMode)}
               </span>
-              <p className="font-bold text-spiritual-maroon text-sm mt-0.5">{request.personName}</p>
-            </div>
-            <div>
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">
-                {language === 'kn' ? 'ಜನ್ಮ ದಿನಾಂಕ' : 'Date of Birth'}
-              </span>
-              <p className="font-bold text-neutral-800 mt-0.5">{request.dateOfBirth}</p>
-            </div>
-            <div>
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">
-                {language === 'kn' ? 'ಜನ್ಮ ಸಮಯ' : 'Time of Birth'}
-              </span>
-              <p className="font-bold text-neutral-800 mt-0.5">{request.timeOfBirth} (IST)</p>
-            </div>
-            <div>
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">
-                {language === 'kn' ? 'ಜನ್ಮ ಸ್ಥಳ' : 'Birth Place'}
-              </span>
-              <p className="font-bold text-neutral-800 mt-0.5">{request.birthPlace}</p>
+              <h3 className="font-bold text-spiritual-maroon text-base mt-1">
+                {pairText(calc.janmaRashi.nameEnglish, calc.janmaRashi.nameKannada, reportLangMode)}
+              </h3>
+              <p className="text-[11px] text-neutral-500 mt-0.5">
+                {pairText('Lord: ' + calc.janmaRashi.lord, 'ಅಧಿಪತಿ: ' + calc.janmaRashi.lordKannada, reportLangMode)}
+              </p>
             </div>
 
-            <div>
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">
-                {language === 'kn' ? 'ಜನ್ಮ ರಾಶಿ' : 'Janma Rashi (Moon Sign)'}
+            <div className="p-4 rounded-xl border border-spiritual-gold/40 bg-gradient-to-br from-spiritual-cream-50 to-white shadow-xs">
+              <span className="text-neutral-500 font-bold text-[10px]">
+                {pairText('Janma Lagna (ಲಗ್ನ)', 'ಜನ್ಮ ಲಗ್ನ', reportLangMode)}
               </span>
-              <p className="font-black text-spiritual-maroon text-sm mt-0.5">
-                {language === 'kn' ? calc.janmaRashi.nameKannada : calc.janmaRashi.nameEnglish}
+              <h3 className="font-bold text-spiritual-maroon text-base mt-1">
+                {pairText(calc.lagna.nameEnglish, calc.lagna.nameKannada, reportLangMode)}
+              </h3>
+              <p className="text-[11px] text-neutral-500 mt-0.5 font-mono">
+                {calc.lagna.formattedDeg}
               </p>
             </div>
-            <div>
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">
-                {language === 'kn' ? 'ಜನ್ಮ ನಕ್ಷತ್ರ' : 'Nakshatra & Pada'}
+
+            <div className="p-4 rounded-xl border border-spiritual-gold/40 bg-gradient-to-br from-spiritual-cream-50 to-white shadow-xs">
+              <span className="text-neutral-500 font-bold text-[10px]">
+                {pairText('Birth Nakshatra (ನಕ್ಷತ್ರ)', 'ಜನ್ಮ ನಕ್ಷತ್ರ', reportLangMode)}
               </span>
-              <p className="font-black text-spiritual-maroon text-sm mt-0.5">
-                {language === 'kn' ? calc.nakshatra.nameKannada : calc.nakshatra.nameEnglish} ({calc.nakshatra.pada})
+              <h3 className="font-bold text-spiritual-maroon text-base mt-1">
+                {pairText(calc.nakshatra.nameEnglish, calc.nakshatra.nameKannada, reportLangMode)}
+              </h3>
+              <p className="text-[11px] text-neutral-500 mt-0.5">
+                {pairText(`Pada ${calc.nakshatra.pada} • Lord: ${calc.nakshatra.lord}`, `ಪಾದ ${calc.nakshatra.pada} • ಅಧಿಪತಿ: ${calc.nakshatra.lord}`, reportLangMode)}
               </p>
             </div>
-            <div>
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">
-                {language === 'kn' ? 'ಜನ್ಮ ಲಗ್ನ' : 'Lagna (Ascendant)'}
+
+            <div className="p-4 rounded-xl border border-spiritual-gold/40 bg-gradient-to-br from-spiritual-cream-50 to-white shadow-xs">
+              <span className="text-neutral-500 font-bold text-[10px]">
+                {pairText('Surya Rashi (ಸೂರ್ಯ ರಾಶಿ)', 'ಸೂರ್ಯ ರಾಶಿ', reportLangMode)}
               </span>
-              <p className="font-black text-spiritual-saffron-700 text-sm mt-0.5">
-                {language === 'kn' ? calc.lagna.nameKannada : calc.lagna.nameEnglish} ({calc.lagna.formattedDeg})
+              <h3 className="font-bold text-spiritual-maroon text-base mt-1">
+                {pairText(calc.suryaRashi.nameEnglish, calc.suryaRashi.nameKannada, reportLangMode)}
+              </h3>
+              <p className="text-[11px] text-neutral-500 mt-0.5">
+                {pairText('Solar Placement', 'ಸೂರ್ಯ ಸ್ಥಿತಿ', reportLangMode)}
               </p>
-            </div>
-            <div>
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">
-                {language === 'kn' ? 'ಅಯನಾಂಶ (ಲಾಹಿರಿ)' : 'Lahiri Ayanamsha'}
-              </span>
-              <p className="font-bold text-neutral-700 mt-0.5">{calc.formattedAyanamsha}</p>
             </div>
           </div>
         </div>
 
-        {/* 3. KUNDALI CHARTS (SOUTH INDIAN & NORTH INDIAN) */}
+        {/* 5. KUNDALI CHARTS (RASHI & NAVAMSHA CHAKRAS) */}
         <div>
           <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
-            <Flame className="w-4 h-4 text-spiritual-saffron" />
-            <span>{language === 'kn' ? 'ಕುಂಡಲಿ ಚಕ್ರಗಳು' : 'Kundali Chakra Charts'}</span>
+            <Award className="w-4 h-4 text-spiritual-saffron" />
+            <span>{pairText(SECTION_HEADINGS.kundaliCharts.en, SECTION_HEADINGS.kundaliCharts.kn, reportLangMode)}</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            <SouthIndianChart chartData={calc.southIndianChart} language={language} />
-            <NorthIndianChart chartData={calc.northIndianChart} language={language} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <SouthIndianChart
+              chartData={calc.southIndianChart}
+              language={reportLangMode}
+              title={pairText('D1 Rashi Chakra (ರಾಶಿ ಚಕ್ರ)', 'ರಾಶಿ ಚಕ್ರ (D1)', reportLangMode)}
+            />
+            <SouthIndianChart
+              chartData={navamshaChart}
+              language={reportLangMode}
+              title={pairText('D9 Navamsha Chakra (ನವಾಂಶ ಚಕ್ರ)', 'ನವಾಂಶ ಚಕ್ರ (D9)', reportLangMode)}
+            />
+          </div>
+
+          <div className="mt-4">
+            <NorthIndianChart
+              chartData={calc.northIndianChart}
+              language={reportLangMode}
+              title={pairText('Diamond Kundali (ಹೀರಕ ಚಕ್ರ - Bhavas 1 to 12)', 'ಉತ್ತರ ಭಾರತೀಯ ಹೀರಕ ಕುಂಡಲಿ', reportLangMode)}
+            />
           </div>
         </div>
 
-        {/* 4. PLANETARY POSITIONS (GRAHA SPASHTA) */}
+        {/* 6. PLANETARY POSITIONS (BILINGUAL TABLE) */}
         <div>
           <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-spiritual-saffron" />
-            <span>{language === 'kn' ? 'ಗ್ರಹ ಸ್ಪಷ್ಟ ವಿವರ (ಖಗೋಳ ಗಣನೆ)' : 'Planetary Positions (Astronomical Ephemeris)'}</span>
+            <Clock className="w-4 h-4 text-spiritual-saffron" />
+            <span>{pairText(SECTION_HEADINGS.planetaryPositions.en, SECTION_HEADINGS.planetaryPositions.kn, reportLangMode)}</span>
           </h2>
 
-          <div className="overflow-x-auto rounded-xl border border-spiritual-gold/30">
+          <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-gradient-to-r from-spiritual-maroon to-spiritual-maroon-dark text-white font-bold">
-                <tr>
-                  <th className="p-2.5">Planet / ಗ್ರಹ</th>
-                  <th className="p-2.5">Rashi / ರಾಶಿ</th>
-                  <th className="p-2.5">Degree / ಅಂಶ</th>
-                  <th className="p-2.5">Nakshatra / ನಕ್ಷತ್ರ</th>
-                  <th className="p-2.5 text-center">Pada</th>
-                  <th className="p-2.5 text-center">House / ಭಾವ</th>
-                  <th className="p-2.5 text-center">Motion / ಗತಿ</th>
+              <thead>
+                <tr className="border-b border-spiritual-gold/40 text-neutral-500 font-bold text-[11px]">
+                  <th className="py-2.5 px-3">{pairText('Planet', 'ಗ್ರಹ', reportLangMode)}</th>
+                  <th className="py-2.5 px-3">{pairText('Rashi (Sign)', 'ರಾಶಿ', reportLangMode)}</th>
+                  <th className="py-2.5 px-3">{pairText('Degree (DMS)', 'ಅಂಶ', reportLangMode)}</th>
+                  <th className="py-2.5 px-3">{pairText('Nakshatra & Pada', 'ನಕ್ಷತ್ರ & ಪಾದ', reportLangMode)}</th>
+                  <th className="py-2.5 px-3">{pairText('House', 'ಭಾವ', reportLangMode)}</th>
+                  <th className="py-2.5 px-3">{pairText('State', 'ಸ್ಥಿತಿ', reportLangMode)}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-spiritual-gold/20 bg-white">
-                {calc.planets.map((p) => (
-                  <tr key={p.name} className="hover:bg-spiritual-cream-50/70 transition">
-                    <td className="p-2.5 font-bold text-spiritual-maroon">
-                      {language === 'kn' ? p.nameKannada : p.name} ({p.symbol})
-                    </td>
-                    <td className="p-2.5 font-semibold text-neutral-800">
-                      {language === 'kn' ? p.rashiKannada : p.rashiEnglish}
-                    </td>
-                    <td className="p-2.5 font-mono text-[11px] text-neutral-700">{p.formattedDeg}</td>
-                    <td className="p-2.5 text-neutral-700">
-                      {language === 'kn' ? p.nakshatraKannada : p.nakshatraEnglish}
-                    </td>
-                    <td className="p-2.5 text-center font-bold text-neutral-700">{p.pada}</td>
-                    <td className="p-2.5 text-center font-extrabold text-spiritual-maroon">
-                      H{p.house}
-                    </td>
-                    <td className="p-2.5 text-center">
-                      {p.isRetrograde ? (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                          {language === 'kn' ? 'ವಕ್ರಿ' : 'Vakri (R)'}
-                        </span>
-                      ) : (
-                        <span className="text-[11px] text-neutral-500 font-medium">
-                          {language === 'kn' ? 'ಮಾರ್ಗಿ' : 'Direct'}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-neutral-100">
+                {calc.planets.map((p) => {
+                  const bPlanet = getBilingualPlanet(p.name, reportLangMode);
+                  const bRashi = pairText(p.rashiEnglish, p.rashiKannada, reportLangMode);
+                  const bNak = pairText(p.nakshatraEnglish, p.nakshatraKannada, reportLangMode);
+
+                  return (
+                    <tr key={p.name} className="hover:bg-spiritual-cream-50/50">
+                      <td className="py-2.5 px-3 font-bold text-spiritual-maroon flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-spiritual-saffron"></span>
+                        <span>{bPlanet}</span>
+                      </td>
+                      <td className="py-2.5 px-3 font-medium">{bRashi}</td>
+                      <td className="py-2.5 px-3 font-mono font-semibold">{p.formattedDeg}</td>
+                      <td className="py-2.5 px-3">
+                        {bNak} ({pairText('Pada ' + p.pada, 'ಪಾದ ' + p.pada, reportLangMode)})
+                      </td>
+                      <td className="py-2.5 px-3 font-bold text-neutral-700">
+                        {pairText('House ' + p.house, p.house + 'ನೇ ಭಾವ', reportLangMode)}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        {p.isRetrograde ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                            {pairText('Retrograde (Vakri)', 'ವಕ್ರಿ', reportLangMode)}
+                          </span>
+                        ) : (
+                          <span className="text-neutral-500 font-medium">
+                            {pairText('Direct (Marga)', 'ಮಾರ್ಗಿ', reportLangMode)}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* 5. VIMSHOTTARI DASHA PERIODS & ANALYSIS */}
+        {/* 7. TWELVE HOUSES (BHAVA) ASSESSMENT */}
         <div>
           <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-spiritual-saffron" />
-            <span>{language === 'kn' ? 'ವಿಂಶೋತ್ತರಿ ದಶಾ ಕಾಲಗಣನೆ ಹಾಗೂ ಫಲ ವಿಶ್ಲೇಷಣೆ' : 'Vimshottari Dasha Hierarchy & Predictions'}</span>
+            <BookOpen className="w-4 h-4 text-spiritual-saffron" />
+            <span>{pairText(SECTION_HEADINGS.houseAnalysis.en, SECTION_HEADINGS.houseAnalysis.kn, reportLangMode)}</span>
           </h2>
 
-          {calc.vimshottari ? (
-            <VimshottariDashaView dashaData={calc.vimshottari} />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {calc.dashas?.map((d, idx) => (
-                <div
-                  key={idx}
-                  className={`p-3 rounded-xl border text-xs flex flex-col justify-between ${
-                    d.isBirthDasha
-                      ? 'bg-spiritual-saffron-50 border-spiritual-saffron/40 shadow-xs ring-1 ring-spiritual-saffron/30'
-                      : 'bg-white border-spiritual-gold/30'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-extrabold text-spiritual-maroon text-sm">
-                      {language === 'kn' ? d.lordKannada : d.lord} Dasha
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {calc.houses.map((h) => {
+              const hInfo = HOUSE_TRANSLATIONS[h.houseNumber];
+              return (
+                <div key={h.houseNumber} className="p-3 rounded-xl border border-spiritual-gold/30 bg-spiritual-cream-50/40 text-xs space-y-1">
+                  <div className="flex items-center justify-between border-b border-spiritual-gold/20 pb-1">
+                    <span className="font-bold text-spiritual-maroon">
+                      {pairText(hInfo.en, hInfo.kn, reportLangMode)}
                     </span>
-                    {d.isBirthDasha && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-spiritual-saffron text-white">
-                        {language === 'kn' ? 'ಜನ್ಮ ದಶಾ' : 'Birth Dasha'}
-                      </span>
-                    )}
+                    <span className="text-[10px] text-neutral-400 font-mono">
+                      {pairText(h.rashiEnglish, h.rashiKannada, reportLangMode)}
+                    </span>
                   </div>
-                  <div className="mt-1 text-[11px] text-neutral-600">
-                    <span>{d.startDate}</span> <span className="text-neutral-400">➔</span> <span>{d.endDate}</span>
-                  </div>
-                  <div className="text-[10px] text-neutral-400 mt-1 font-medium">
-                    {d.durationYears} {language === 'kn' ? 'ವರ್ಷಗಳು' : 'Years'}
+                  <p className="text-[11px] text-neutral-600">
+                    {pairText(hInfo.significationsEn, hInfo.significationsKn, reportLangMode)}
+                  </p>
+                  <div className="text-[10px] font-bold text-neutral-700">
+                    {pairText('Occupants: ', 'ಸ್ಥಿತ ಗ್ರಹಗಳು: ', reportLangMode)}
+                    {h.planets.length > 0 ? h.planets.join(', ') : pairText('None (Clear)', 'ಯಾವ ಗ್ರಹಗಳೂ ಇಲ್ಲ', reportLangMode)}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
 
-        {/* 6. REVIEWED VEDIC DOSHA ANALYSIS */}
+        {/* 8. PLANETARY ASPECTS (GRAHA DRISHTI) */}
+        <div>
+          <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
+            <Compass className="w-4 h-4 text-spiritual-saffron" />
+            <span>{pairText(SECTION_HEADINGS.planetaryAspects.en, SECTION_HEADINGS.planetaryAspects.kn, reportLangMode)}</span>
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            {planetaryAspects.map((asp, idx) => (
+              <div key={idx} className="p-3.5 rounded-xl border border-spiritual-gold/30 bg-white shadow-2xs space-y-1">
+                <span className="font-bold text-spiritual-maroon text-sm">{asp.planetEn}</span>
+                <p className="text-neutral-700 text-[11px] font-medium">{pairText(asp.aspectHousesEn, asp.aspectHousesKn, reportLangMode)}</p>
+                <p className="text-[10px] text-neutral-500 italic">{pairText(asp.significanceEn, asp.significanceKn, reportLangMode)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 9. AUSPICIOUS YOGAS */}
+        <div>
+          <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
+            <Award className="w-4 h-4 text-spiritual-saffron" />
+            <span>{pairText(SECTION_HEADINGS.auspiciousYogas.en, SECTION_HEADINGS.auspiciousYogas.kn, reportLangMode)}</span>
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {yogasList.map((yoga) => (
+              <div
+                key={yoga.id}
+                className={`p-3.5 rounded-xl border text-xs space-y-1 ${
+                  yoga.present
+                    ? 'bg-amber-50/70 border-amber-300 shadow-2xs'
+                    : 'bg-neutral-50 border-neutral-200 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-spiritual-maroon text-sm">
+                    {pairText(yoga.nameEn, yoga.nameKn, reportLangMode)}
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      yoga.present ? 'bg-amber-200 text-amber-900' : 'bg-neutral-200 text-neutral-600'
+                    }`}
+                  >
+                    {yoga.present ? pairText('Present', 'ಸಕ್ರಿಯ', reportLangMode) : pairText('Absent', 'ಇಲ್ಲ', reportLangMode)}
+                  </span>
+                </div>
+                <p className="text-[11px] text-neutral-700 leading-snug">
+                  {pairText(yoga.descEn, yoga.descKn, reportLangMode)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 10. VIMSHOTTARI DASHA HIERARCHY */}
+        {calc.vimshottari && (
+          <div>
+            <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-spiritual-saffron" />
+              <span>{pairText(SECTION_HEADINGS.vimshottariDasha.en, SECTION_HEADINGS.vimshottariDasha.kn, reportLangMode)}</span>
+            </h2>
+            <VimshottariDashaView dashaData={calc.vimshottari} />
+          </div>
+        )}
+
+        {/* 11. REVIEWED VEDIC DOSHA ANALYSIS */}
         <div>
           <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
             <Shield className="w-4 h-4 text-spiritual-saffron" />
-            <span>{language === 'kn' ? 'ಪುರೋಹಿತರ ದೋಷ ವಿಶ್ಲೇಷಣೆ' : 'Purohit Vedic Dosha Analysis'}</span>
+            <span>{pairText(SECTION_HEADINGS.doshaAnalysis.en, SECTION_HEADINGS.doshaAnalysis.kn, reportLangMode)}</span>
           </h2>
 
           <div className="space-y-3">
@@ -334,7 +647,7 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
                       <CheckCircle className="w-4 h-4 text-emerald-600" />
                     )}
                     <span className="font-bold text-sm text-spiritual-maroon">
-                      {language === 'kn' ? dosha.nameKannada : dosha.nameEnglish}
+                      {pairText(dosha.nameEnglish, dosha.nameKannada, reportLangMode)}
                     </span>
                   </div>
                   <span
@@ -346,19 +659,17 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
                   >
                     {dosha.confirmed && dosha.detected
                       ? `${dosha.severity} Severity`
-                      : language === 'kn'
-                      ? 'ದೋಷವಿಲ್ಲ (Clear)'
-                      : 'Clear / Pacified'}
+                      : pairText('Clear / Pacified', 'ದೋಷವಿಲ್ಲ (Clear)', reportLangMode)}
                   </span>
                 </div>
 
                 <p className="text-xs text-neutral-700 leading-relaxed">
-                  {language === 'kn' ? dosha.reasoningKannada : dosha.reasoningEnglish}
+                  {pairText(dosha.reasoningEnglish, dosha.reasoningKannada, reportLangMode)}
                 </p>
 
                 {dosha.cancellationInfo && (
                   <div className="mt-2 text-xs font-semibold text-emerald-700 bg-emerald-100/60 p-2 rounded-lg">
-                    ✨ {dosha.cancellationInfo}
+                    ✨ {pairText('Cancellation: ' + dosha.cancellationInfo, 'ದೋಷ ಪರಿಹಾರ: ' + dosha.cancellationInfo, reportLangMode)}
                   </div>
                 )}
 
@@ -372,11 +683,11 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
           </div>
         </div>
 
-        {/* 7. APPROVED SHANTI & PARIHARA RECOMMENDATIONS */}
+        {/* 12. APPROVED SHANTI & PARIHARA RECOMMENDATIONS */}
         <div>
           <h2 className="font-serif font-black text-sm sm:text-base text-spiritual-maroon border-b border-spiritual-gold/30 pb-2 mb-4 flex items-center gap-2">
             <Flame className="w-4 h-4 text-spiritual-saffron" />
-            <span>{language === 'kn' ? 'ಅನುಮೋದಿತ ಶಾಂತಿ ಹಾಗೂ ಪರಿಹಾರ ಪೂಜೆಗಳು' : 'Approved Shanti & Parihara Rituals'}</span>
+            <span>{pairText(SECTION_HEADINGS.shantiRemedies.en, SECTION_HEADINGS.shantiRemedies.kn, reportLangMode)}</span>
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -389,33 +700,36 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
                 >
                   <div className="flex items-center gap-2 font-bold text-spiritual-maroon text-sm border-b border-spiritual-gold/20 pb-1.5">
                     <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    <span>{language === 'kn' ? rem.titleKannada : rem.titleEnglish}</span>
+                    <span>{pairText(rem.titleEnglish, rem.titleKannada, reportLangMode)}</span>
                   </div>
                   <p className="text-xs text-neutral-700 leading-snug">
-                    {language === 'kn' ? rem.descriptionKannada : rem.descriptionEnglish}
+                    {pairText(rem.descriptionEnglish, rem.descriptionKannada, reportLangMode)}
                   </p>
                   <div className="text-[11px] text-spiritual-saffron-800 bg-spiritual-saffron-50/70 p-2 rounded-lg font-medium">
-                    <strong>{language === 'kn' ? 'ಶಾಸ್ತ್ರೋಕ್ತ ಕಾರಣ: ' : 'Traditional Reason: '}</strong>
-                    {language === 'kn' ? rem.traditionalReasonKannada : rem.traditionalReasonEnglish}
+                    <strong>{pairText('Traditional Reason: ', 'ಶಾಸ್ತ್ರೋಕ್ತ ಕಾರಣ: ', reportLangMode)}</strong>
+                    {pairText(rem.traditionalReasonEnglish, rem.traditionalReasonKannada, reportLangMode)}
                   </div>
                 </div>
               ))}
           </div>
         </div>
 
-        {/* 8. PUROHIT'S PERSONAL BLESSINGS & SEAL */}
+        {/* 13. PUROHIT'S PERSONAL BLESSINGS & VEDIC SEAL */}
         <div className="border-t-2 border-spiritual-gold/40 pt-6 mt-8 flex flex-col sm:flex-row items-center justify-between gap-6 bg-spiritual-cream-50/60 p-6 rounded-2xl">
           <div className="space-y-1 text-center sm:text-left">
             <span className="text-[10px] uppercase font-bold text-spiritual-saffron-700 tracking-wider">
-              {language === 'kn' ? 'ಪುರೋಹಿತರ ಆಶೀರ್ವಚನ ಹಾಗೂ ಅಭಿಪ್ರಾಯ' : "Purohit's Sacred Blessings & Observations"}
+              {pairText(SECTION_HEADINGS.purohitBlessings.en, SECTION_HEADINGS.purohitBlessings.kn, reportLangMode)}
             </span>
             <p className="text-xs sm:text-sm font-serif italic text-spiritual-maroon leading-relaxed max-w-lg">
               "{request.purohitComments ||
                 'ಸಕಲ ಗ್ರಹಾನುಗ್ರಹ ಸಿದ್ಧಿರಸ್ತು, ಶುಭಂ ಭವತು! ಧರ್ಮ, ಅರ್ಥ, ಕಾಮ, ಮೋಕ್ಷ ಚತುರ್ವಿಧ ಫಲಪ್ರಾಪ್ತಿರಸ್ತು.'}"
             </p>
             <div className="text-[10px] text-neutral-500 pt-1">
-              Approved by: <strong className="text-neutral-800">{request.approvedBy || 'Shree Prashanth Bhat'}</strong> •{' '}
-              {request.approvedAt ? new Date(request.approvedAt).toLocaleDateString() : 'Official Vedic Authorization'}
+              {pairText('Approved & Certified by: ', 'ಅನುಮೋದಿಸಿದವರು: ', reportLangMode)}
+              <strong className="text-neutral-800">{request.approvedBy || 'Shree Prashanth Bhat'}</strong> •{' '}
+              {request.approvedAt
+                ? formatBilingualDate(new Date(request.approvedAt).toISOString()).en
+                : 'Vedic Authorization'}
             </div>
           </div>
 
@@ -434,4 +748,3 @@ export const HoroscopeReportView: React.FC<HoroscopeReportViewProps> = ({
     </div>
   );
 };
-

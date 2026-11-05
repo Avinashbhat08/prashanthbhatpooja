@@ -8,10 +8,15 @@ interface NorthIndianChartProps {
     rashiKannada: string;
     planets: string[];
   }>;
-  language?: 'en' | 'kn';
+  language?: 'bilingual' | 'en' | 'kn';
+  title?: string;
 }
 
-export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({ chartData, language = 'en' }) => {
+export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
+  chartData,
+  language = 'bilingual',
+  title,
+}) => {
   const getHouse = (num: number) => {
     return (
       chartData.find((h) => h.houseNumber === num) || {
@@ -43,7 +48,12 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({ chartData, l
   return (
     <div className="w-full max-w-md mx-auto border-2 border-spiritual-maroon rounded-2xl overflow-hidden shadow-md bg-spiritual-cream-50">
       <div className="bg-gradient-to-r from-spiritual-maroon via-spiritual-maroon-dark to-spiritual-maroon text-white text-center py-1.5 text-xs font-bold tracking-wider uppercase">
-        {language === 'kn' ? 'ಉತ್ತರ ಭಾರತೀಯ ಕುಂಡಲಿ (ಹೀರಕ ಚಕ್ರ)' : 'North Indian Kundali (Diamond Chart)'}
+        {title ||
+          (language === 'bilingual'
+            ? 'North Indian Kundali (ಉತ್ತರ ಭಾರತೀಯ ಕುಂಡಲಿ)'
+            : language === 'kn'
+            ? 'ಉತ್ತರ ಭಾರತೀಯ ಕುಂಡಲಿ (ಹೀರಕ ಚಕ್ರ)'
+            : 'North Indian Kundali (Diamond Chart)')}
       </div>
 
       <div className="p-2 flex items-center justify-center">
@@ -58,57 +68,74 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({ chartData, l
           <line x1="0" y1="0" x2="400" y2="400" stroke="#800000" strokeWidth="2" />
           <line x1="400" y1="0" x2="0" y2="400" stroke="#800000" strokeWidth="2" />
 
-          {/* Inner Diamond */}
-          <polygon
-            points="200,0 400,200 200,400 0,200"
-            fill="none"
-            stroke="#800000"
-            strokeWidth="2.5"
-          />
+          {/* Diamond in the center connecting midpoints */}
+          <polygon points="200,0 400,200 200,400 0,200" fill="none" stroke="#800000" strokeWidth="2" />
 
-          {/* House Labels & Planets */}
-          {Array.from({ length: 12 }, (_, i) => {
-            const hNum = i + 1;
-            const h = getHouse(hNum);
-            const pos = housePositions[hNum];
+          {/* Inner Kendra diamond lines */}
+          <line x1="0" y1="200" x2="200" y2="0" stroke="#800000" strokeWidth="2" />
+          <line x1="200" y1="0" x2="400" y2="200" stroke="#800000" strokeWidth="2" />
+          <line x1="400" y1="200" x2="200" y2="400" stroke="#800000" strokeWidth="2" />
+          <line x1="200" y1="400" x2="0" y2="200" stroke="#800000" strokeWidth="2" />
 
+          {/* Render 12 Houses */}
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((num) => {
+            const h = getHouse(num);
+            const pos = housePositions[num];
             return (
-              <g key={hNum}>
-                {/* Rashi Number in small corner */}
+              <g key={num}>
+                {/* Rashi Number in small red/maroon */}
                 <text
                   x={pos.cx}
-                  y={pos.cy - 14}
-                  textAnchor="middle"
-                  fill="#996515"
+                  y={pos.cy - 12}
                   fontSize="11"
                   fontWeight="bold"
+                  fill="#800000"
+                  textAnchor="middle"
+                  fontFamily="serif"
                 >
                   {h.rashiId}
                 </text>
 
-                {/* Planets occupying this house */}
-                <text
-                  x={pos.cx}
-                  y={pos.cy + 3}
-                  textAnchor="middle"
-                  fill="#660000"
-                  fontSize="12"
-                  fontWeight="900"
-                >
-                  {h.planets && h.planets.length > 0 ? h.planets.join(' ') : '—'}
-                </text>
+                {/* Occupying Planets */}
+                {h.planets && h.planets.length > 0 && (
+                  <text
+                    x={pos.cx}
+                    y={pos.cy + 4}
+                    fontSize="11"
+                    fontWeight="bold"
+                    fill="#1F2937"
+                    textAnchor="middle"
+                    fontFamily="sans-serif"
+                  >
+                    {h.planets.slice(0, 3).join(' ')}
+                  </text>
+                )}
+                {h.planets && h.planets.length > 3 && (
+                  <text
+                    x={pos.cx}
+                    y={pos.cy + 16}
+                    fontSize="9"
+                    fontWeight="bold"
+                    fill="#1F2937"
+                    textAnchor="middle"
+                    fontFamily="sans-serif"
+                  >
+                    {h.planets.slice(3, 6).join(' ')}
+                  </text>
+                )}
 
-                {/* House Indicator for House 1 (Lagna) */}
-                {hNum === 1 && (
+                {/* Lagna marker on House 1 */}
+                {num === 1 && (
                   <text
                     x={pos.cx}
                     y={pos.cy + 22}
-                    textAnchor="middle"
+                    fontSize="9"
+                    fontWeight="black"
                     fill="#D97706"
-                    fontSize="10"
-                    fontWeight="bold"
+                    textAnchor="middle"
+                    fontFamily="sans-serif"
                   >
-                    LAGNA (ಲಗ್ನ)
+                    {language === 'kn' ? 'ಲಗ್ನ' : 'ASC'}
                   </text>
                 )}
               </g>
@@ -119,4 +146,3 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({ chartData, l
     </div>
   );
 };
-

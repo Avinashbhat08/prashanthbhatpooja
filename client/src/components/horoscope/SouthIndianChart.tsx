@@ -8,8 +8,21 @@ interface SouthIndianChartProps {
     isLagna: boolean;
     planets: string[];
   }>;
-  language?: 'en' | 'kn';
+  language?: 'bilingual' | 'en' | 'kn';
+  title?: string;
 }
+
+const PLANET_KN_MAP: Record<string, string> = {
+  Su: 'ಸೂರ್ಯ',
+  Mo: 'ಚಂದ್ರ',
+  Ma: 'ಕುಜ',
+  Me: 'ಬುಧ',
+  Ju: 'ಗುರು',
+  Ve: 'ಶುಕ್ರ',
+  Sa: 'ಶನಿ',
+  Ra: 'ರಾಹು',
+  Ke: 'ಕೇತು',
+};
 
 /**
  * South Indian Fixed-Sign Kundali Layout:
@@ -19,7 +32,11 @@ interface SouthIndianChartProps {
  * [10: Makara]     ( CENTER / SACRED SPACE )           [ 5: Simha]
  * [ 9: Dhanu]      [ 8: Vrishchika]  [ 7: Tula]        [ 6: Kanya]
  */
-export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ chartData, language = 'en' }) => {
+export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
+  chartData,
+  language = 'bilingual',
+  title,
+}) => {
   const getBox = (rashiId: number) => {
     return (
       chartData.find((b) => b.rashiId === rashiId) || {
@@ -47,7 +64,11 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ chartData, l
         {/* Cell Header: Sign Name & Lagna Indicator */}
         <div className="flex items-center justify-between text-[11px] leading-tight font-bold text-spiritual-maroon border-b border-spiritual-gold/25 pb-0.5">
           <span className="truncate">
-            {language === 'kn' ? box.rashiKannada : box.rashiEnglish}
+            {language === 'bilingual'
+              ? `${box.rashiEnglish} (${box.rashiKannada})`
+              : language === 'kn'
+              ? box.rashiKannada
+              : box.rashiEnglish}
           </span>
           {box.isLagna && (
             <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-spiritual-maroon text-white tracking-wider animate-pulse">
@@ -59,19 +80,29 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ chartData, l
         {/* Occupying Planets */}
         <div className="flex-1 flex flex-wrap gap-1 content-center py-1">
           {box.planets && box.planets.length > 0 ? (
-            box.planets.map((p, idx) => (
-              <span
-                key={idx}
-                className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-black shadow-xs ${
-                  p.includes('(R)')
-                    ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                    : 'bg-spiritual-saffron-100 text-spiritual-maroon-dark border border-spiritual-saffron/30'
-                }`}
-                title={p.includes('(R)') ? 'Retrograde (Vakri)' : 'Direct'}
-              >
-                {p}
-              </span>
-            ))
+            box.planets.map((p, idx) => {
+              const cleanSym = p.replace(/\(R\)/g, '');
+              const isRetro = p.includes('(R)');
+              const knName = PLANET_KN_MAP[cleanSym] || cleanSym;
+
+              return (
+                <span
+                  key={idx}
+                  className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black shadow-xs border ${
+                    isRetro
+                      ? 'bg-amber-100 text-amber-900 border-amber-300'
+                      : 'bg-spiritual-saffron-100 text-spiritual-maroon-dark border border-spiritual-saffron/30'
+                  }`}
+                  title={`${cleanSym}: ${knName}${isRetro ? ' (ವಕ್ರಿ / Retrograde)' : ''}`}
+                >
+                  <span>{language === 'kn' ? knName : cleanSym}</span>
+                  {language === 'bilingual' && (
+                    <span className="text-[8px] text-neutral-500 font-normal">({knName.slice(0, 2)})</span>
+                  )}
+                  {isRetro && <span className="text-[8px] text-amber-700 font-extrabold">(R)</span>}
+                </span>
+              );
+            })
           ) : (
             <span className="text-[11px] text-neutral-300 italic select-none">--</span>
           )}
@@ -79,7 +110,7 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ chartData, l
 
         {/* Sign Number */}
         <div className="text-right text-[10px] text-neutral-400 font-semibold select-none">
-          {rashiId}
+          #{rashiId}
         </div>
       </div>
     );
@@ -88,36 +119,51 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ chartData, l
   return (
     <div className="w-full max-w-md mx-auto border-2 border-spiritual-maroon rounded-2xl overflow-hidden shadow-md bg-spiritual-cream-50">
       <div className="bg-gradient-to-r from-spiritual-maroon via-spiritual-maroon-dark to-spiritual-maroon text-white text-center py-1.5 text-xs font-bold tracking-wider uppercase">
-        {language === 'kn' ? 'ದಕ್ಷಿಣ ಭಾರತೀಯ ಕುಂಡಲಿ (ಚೌಕ ಚಕ್ರ)' : 'South Indian Kundali (Fixed Signs)'}
+        {title ||
+          (language === 'bilingual'
+            ? 'South Indian Kundali (ದಕ್ಷಿಣ ಭಾರತೀಯ ಕುಂಡಲಿ)'
+            : language === 'kn'
+            ? 'ದಕ್ಷಿಣ ಭಾರತೀಯ ಕುಂಡಲಿ (ಚತುರಸ್ರ ಚಕ್ರ)'
+            : 'South Indian Kundali (Square Chart)')}
       </div>
 
-      <div className="grid grid-cols-4 grid-rows-4 aspect-square">
-        {/* Row 1: Pisces (12), Aries (1), Taurus (2), Gemini (3) */}
+      <div className="grid grid-cols-4 grid-rows-4 bg-spiritual-gold/20 p-1 gap-0.5">
+        {/* Row 1 */}
         {renderCell(12)}
         {renderCell(1)}
         {renderCell(2)}
         {renderCell(3)}
 
-        {/* Row 2: Aquarius (11), CENTER (2 cols), Cancer (4) */}
+        {/* Row 2 */}
         {renderCell(11)}
-        <div className="col-span-2 row-span-2 border border-spiritual-maroon/30 bg-gradient-to-br from-spiritual-cream-100 via-white to-spiritual-cream-50 flex flex-col items-center justify-center p-3 text-center">
-          <div className="w-10 h-10 rounded-full p-1 bg-gradient-to-tr from-spiritual-maroon to-spiritual-saffron mb-1 flex items-center justify-center shadow-xs">
-            <img src="/logo.svg" alt="Ganesha" className="w-full h-full object-contain filter drop-shadow-xs" />
+        <div className="col-span-2 row-span-2 bg-gradient-to-br from-spiritual-cream-100 via-white to-spiritual-cream-200 flex flex-col items-center justify-center p-3 text-center border border-spiritual-gold/40 shadow-inner">
+          <div className="w-10 h-10 rounded-full bg-spiritual-maroon/10 border border-spiritual-gold flex items-center justify-center mb-1">
+            <span className="font-serif font-black text-spiritual-maroon text-lg">ॐ</span>
           </div>
           <span className="text-[11px] font-black text-spiritual-maroon font-serif leading-tight">
             || ಶ್ರೀ ||
           </span>
+          <span className="font-serif font-black text-xs text-spiritual-maroon tracking-wider">
+            {language === 'bilingual'
+              ? 'JANMA KUNDALI (ಜನ್ಮ ಕುಂಡಲಿ)'
+              : language === 'kn'
+              ? 'ಜನ್ಮ ಕುಂಡಲಿ ಚಕ್ರ'
+              : 'JANMA KUNDALI'}
+          </span>
           <span className="text-[10px] text-spiritual-saffron-700 font-bold leading-tight mt-0.5">
             {language === 'kn' ? 'ರಾಶಿ ಚಕ್ರ' : 'Rashi Chakra'}
+          </span>
+          <span className="text-[9px] text-neutral-500 font-serif italic mt-0.5">
+            Lahiri Sidereal Zodiac
           </span>
         </div>
         {renderCell(4)}
 
-        {/* Row 3: Capricorn (10), (CENTER continued), Leo (5) */}
+        {/* Row 3 */}
         {renderCell(10)}
         {renderCell(5)}
 
-        {/* Row 4: Sagittarius (9), Scorpio (8), Libra (7), Virgo (6) */}
+        {/* Row 4 */}
         {renderCell(9)}
         {renderCell(8)}
         {renderCell(7)}
@@ -126,4 +172,3 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({ chartData, l
     </div>
   );
 };
-

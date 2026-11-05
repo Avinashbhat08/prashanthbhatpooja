@@ -25,13 +25,14 @@ import { api } from '../services/api.js';
 import { HoroscopeFormData, HoroscopeRequestRecord } from '../types/index.js';
 import { useToast } from '../components/common/Toast.js';
 import { HoroscopeReportView } from '../components/horoscope/HoroscopeReportView.js';
+import { MarriageMatchingView } from '../components/horoscope/MarriageMatchingView.js';
 
 export const GenerateHoroscopePage: React.FC = () => {
   const { language, t } = useLanguage();
   const { user, isAdmin } = useAuth();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'form' | 'my-requests'>('form');
+  const [activeTab, setActiveTab] = useState<'form' | 'my-requests' | 'marriage-matching'>('form');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [calculatingReqId, setCalculatingReqId] = useState<string | null>(null);
@@ -272,6 +273,21 @@ export const GenerateHoroscopePage: React.FC = () => {
               {myRequests.length}
             </span>
           )}
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('marriage-matching');
+            setSelectedReport(null);
+          }}
+          className={`min-h-[44px] px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition active:scale-95 ${
+            activeTab === 'marriage-matching'
+              ? 'bg-spiritual-maroon text-white shadow-md'
+              : 'bg-white text-neutral-700 border border-spiritual-gold/40 hover:bg-spiritual-cream-100'
+          }`}
+        >
+          <span className="text-rose-500">❤️</span>
+          <span>{language === 'kn' ? 'ವಿವಾಹ ಹೊಂದಾಣಿಕೆ (ಗುಣಮಿಲನ)' : 'Marriage Matching (Kundali Milan)'}</span>
         </button>
       </div>
 
@@ -697,6 +713,11 @@ export const GenerateHoroscopePage: React.FC = () => {
             </div>
           )}
         </div>
+      )}
+
+      {/* TAB 3: BILINGUAL MARRIAGE MATCHING */}
+      {activeTab === 'marriage-matching' && !selectedReport && (
+        <MarriageMatchingView />
       )}
     </div>
   );
