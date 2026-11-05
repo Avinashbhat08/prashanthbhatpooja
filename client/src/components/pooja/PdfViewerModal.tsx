@@ -83,10 +83,8 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
   }, [isOpen]);
 
   // Pagination calculation:
-  // Page 1: Full Header + Document Title + 2-Column Details Box + Table Header + Footer.
-  // Holds 16 items comfortably.
-  // Page 2+: Compact running header + Table Header + Footer.
-  // Holds 24 items per page.
+  // - If 18 or fewer items (e.g. Satyanarayana Pooja standard 18 items), all 18 items fit on Page 1!
+  // - If more than 18 items, Page 1 holds 16 items and subsequent pages hold 22 items each.
   const pages: PageSlice[] = useMemo(() => {
     const totalItems = selectedItems.length;
     if (totalItems === 0) {
@@ -101,32 +99,43 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
       ];
     }
 
+    if (totalItems <= 18) {
+      return [
+        {
+          pageNumber: 1,
+          totalPages: 1,
+          isFirstPage: true,
+          isLastPage: true,
+          items: selectedItems.map((item, idx) => ({ item, globalIndex: idx })),
+        },
+      ];
+    }
+
     const PAGE1_CAPACITY = 16;
-    const SUBSEQUENT_CAPACITY = 24;
+    const SUBSEQUENT_CAPACITY = 22;
 
     const pageSlices: { item: SelectedItem; globalIndex: number }[][] = [];
 
-    // Slice 1: Page 1 items
-    const page1Items = selectedItems.slice(0, PAGE1_CAPACITY).map((item, idx) => ({
-      item,
-      globalIndex: idx,
-    }));
-    pageSlices.push(page1Items);
+    // Page 1
+    pageSlices.push(
+      selectedItems.slice(0, PAGE1_CAPACITY).map((item, idx) => ({
+        item,
+        globalIndex: idx,
+      }))
+    );
 
     let currentIndex = PAGE1_CAPACITY;
     while (currentIndex < totalItems) {
-      const nextChunk = selectedItems
-        .slice(currentIndex, currentIndex + SUBSEQUENT_CAPACITY)
-        .map((item, idx) => ({
+      pageSlices.push(
+        selectedItems.slice(currentIndex, currentIndex + SUBSEQUENT_CAPACITY).map((item, idx) => ({
           item,
           globalIndex: currentIndex + idx,
-        }));
-      pageSlices.push(nextChunk);
+        }))
+      );
       currentIndex += SUBSEQUENT_CAPACITY;
     }
 
     const totalPages = pageSlices.length;
-
     return pageSlices.map((slice, idx) => ({
       pageNumber: idx + 1,
       totalPages,
@@ -151,7 +160,6 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
   const defaultPdfFilename = `${sanitizedPoojaName}-${details.poojaDate || new Date().toISOString().split('T')[0]}.pdf`;
 
   // Generate multi-page jsPDF directly from the rendered preview elements
-  // This guarantees 100% fidelity between preview and downloaded PDF
   const generatePdfBlob = async (): Promise<{ doc: jsPDF; blob: Blob }> => {
     if (!previewContainerRef.current) {
       throw new Error('PDF document container not ready');
@@ -160,6 +168,8 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
     // Ensure all Unicode fonts (especially Noto Sans Kannada) are decoded
     if (document.fonts && document.fonts.ready) {
       await document.fonts.ready;
+      // Brief pause to allow the layout engine to settle font metrics
+      await new Promise((resolve) => setTimeout(resolve, 150));
     }
 
     const container = previewContainerRef.current;
@@ -179,9 +189,9 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
     for (let i = 0; i < pageElements.length; i++) {
       const pageEl = pageElements[i];
 
-      // High scale for razor-sharp typography and exact Kannada conjunct glyph shaping
+      // Scale 2 is optimal: 200 DPI crispness, perfect glyph positioning without kerning bugs
       const canvas = await html2canvas(pageEl, {
-        scale: 2.5,
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -269,40 +279,122 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
   // Shared Header Component for Page 1
   const renderPage1Header = () => (
-    <div className="pb-3 border-b-2 border-spiritual-gold/40 flex-shrink-0">
-      <div className="flex items-center justify-between gap-4">
+    <div
+      style={{
+        paddingBottom: '10px',
+        borderBottom: '2px solid rgba(212, 175, 55, 0.5)',
+        flexShrink: 0,
+        width: '100%',
+        letterSpacing: 'normal',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', width: '100%' }}>
         {/* Left: Circular Ganesha Logo & Business Titles */}
-        <div className="flex items-center gap-3.5" style={{ width: '60%', maxWidth: '60%' }}>
-          <div className="w-14 h-14 flex-shrink-0 rounded-full p-0.5 bg-gradient-to-tr from-spiritual-maroon via-spiritual-gold to-spiritual-saffron shadow-xs flex items-center justify-center">
-            <div className="w-full h-full bg-white rounded-full p-1 flex items-center justify-center">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '60%', maxWidth: '60%' }}>
+          <div
+            style={{
+              width: '56px',
+              height: '56px',
+              flexShrink: 0,
+              borderRadius: '50%',
+              padding: '2px',
+              background: 'linear-gradient(135deg, #7B1113, #D4AF37, #E65100)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#ffffff',
+                borderRadius: '50%',
+                padding: '3px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
               <img
                 src={logoDataUrl}
                 alt="Lord Ganesha & Sudarshana Chakra"
-                className="w-full h-full object-contain"
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 crossOrigin="anonymous"
               />
             </div>
           </div>
-          <div className="min-w-0">
-            <h1 className="font-serif font-black text-lg text-spiritual-maroon tracking-wider leading-tight">
+          <div style={{ minWidth: 0 }}>
+            <h1
+              style={{
+                fontFamily: "'Cinzel', Georgia, serif",
+                fontWeight: 900,
+                fontSize: '17px',
+                color: '#7B1113',
+                letterSpacing: '0.02em',
+                lineHeight: 1.2,
+                margin: 0,
+              }}
+            >
               SHREE PRASHANTH BHAT
             </h1>
-            <h2 className="font-kannada font-bold text-base text-spiritual-saffron-dark leading-tight mt-0.5">
+            <h2
+              style={{
+                fontFamily: "'Noto Sans Kannada', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: '15px',
+                color: '#AC1900',
+                letterSpacing: 'normal',
+                lineHeight: 1.25,
+                margin: '2px 0 0 0',
+              }}
+            >
               ಶ್ರೀ ಪ್ರಶಾಂತ್ ಭಟ್
             </h2>
-            <p className="text-[9.5px] font-bold text-neutral-600 tracking-wider uppercase mt-0.5">
+            <p
+              style={{
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontSize: '9.5px',
+                fontWeight: 700,
+                color: '#525252',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                margin: '2px 0 0 0',
+              }}
+            >
               Traditional Vedic Priest & Pooja Services
             </p>
           </div>
         </div>
 
         {/* Right: Phone & Full Business Address */}
-        <div className="text-right space-y-1" style={{ width: '40%', maxWidth: '40%' }}>
-          <p className="font-bold text-spiritual-maroon flex items-center justify-end gap-1.5 text-xs">
-            <Phone className="w-3.5 h-3.5 text-spiritual-saffron flex-shrink-0" />
-            <span className="font-sans font-extrabold tracking-wide">9242359692</span>
+        <div style={{ width: '40%', maxWidth: '40%', textAlign: 'right' }}>
+          <p
+            style={{
+              fontWeight: 800,
+              color: '#7B1113',
+              fontSize: '12px',
+              margin: '0 0 2px 0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: '6px',
+              fontFamily: "'Inter', system-ui, sans-serif",
+            }}
+          >
+            <Phone style={{ width: '13px', height: '13px', color: '#E65100', flexShrink: 0 }} />
+            <span>9242359692</span>
           </p>
-          <p className="text-[9.5px] leading-tight text-neutral-600 font-sans break-words">
+          <p
+            style={{
+              fontSize: '9.5px',
+              lineHeight: 1.3,
+              color: '#525252',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              margin: 0,
+              wordBreak: 'break-word',
+            }}
+          >
             #42, 5th Cross, Kempe Gowda Layout, N. Nagenahalli, R.K. Hegde Nagar, Bangalore North, Karnataka - 560077
           </p>
         </div>
@@ -312,80 +404,151 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
   // Shared Running Header for Subsequent Pages (Page 2+)
   const renderSubsequentHeader = () => (
-    <div className="pb-2 border-b border-spiritual-gold/40 flex items-center justify-between text-xs flex-shrink-0">
-      <div className="flex items-center gap-2">
-        <span className="font-serif font-bold text-spiritual-maroon">
+    <div
+      style={{
+        paddingBottom: '8px',
+        borderBottom: '1px solid rgba(212, 175, 55, 0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        fontSize: '11px',
+        flexShrink: 0,
+        letterSpacing: 'normal',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontFamily: "'Cinzel', Georgia, serif", fontWeight: 800, color: '#7B1113' }}>
           SHREE PRASHANTH BHAT
         </span>
-        <span className="text-neutral-400">•</span>
-        <span className="font-kannada font-semibold text-spiritual-saffron-dark text-[11px]">
+        <span style={{ color: '#a3a3a3' }}>•</span>
+        <span style={{ fontFamily: "'Noto Sans Kannada', sans-serif", fontWeight: 700, color: '#AC1900' }}>
           ಶ್ರೀ ಪ್ರಶಾಂತ್ ಭಟ್ (9242359692)
         </span>
       </div>
-      <div className="text-right text-[10px] text-neutral-500 font-medium font-kannada">
+      <div style={{ textAlign: 'right', fontSize: '10.5px', color: '#737373', fontFamily: "'Noto Sans Kannada', sans-serif" }}>
         {details.poojaName} • ಸಾಮಗ್ರಿಗಳ ಪಟ್ಟಿ
+      </div>
+    </div>
+  );
+
+  // Both Headings Displayed in the Rounded Cream Container
+  const renderSectionHeading = () => (
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '8px 0', flexShrink: 0 }}>
+      <div
+        style={{
+          backgroundColor: '#FFF8E7',
+          border: '1.5px solid #E65100',
+          borderRadius: '12px',
+          padding: '8px 32px',
+          textAlign: 'center',
+          display: 'inline-flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          maxWidth: '620px',
+          width: 'auto',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "'Cinzel', Georgia, serif",
+            fontWeight: 800,
+            fontSize: '13px',
+            color: '#7B1113',
+            letterSpacing: '0.02em',
+            lineHeight: 1.2,
+            textTransform: 'uppercase',
+          }}
+        >
+          POOJA DETAILS & SAMAGRI CHECKLIST
+        </div>
+        <div
+          style={{
+            fontFamily: "'Noto Sans Kannada', system-ui, sans-serif",
+            fontWeight: 700,
+            fontSize: '12.5px',
+            color: '#BF360C',
+            letterSpacing: 'normal',
+            lineHeight: 1.3,
+            marginTop: '3px',
+          }}
+        >
+          ಪೂಜೆಯ ವಿವರಗಳು ಹಾಗೂ ಸಾಮಗ್ರಿಗಳ ಪಟ್ಟಿ
+        </div>
       </div>
     </div>
   );
 
   // Integrated, Clean Pooja Details Box (No Blank Rectangles)
   const renderPoojaDetailsBox = () => (
-    <div className="my-2.5 bg-spiritual-cream-100/90 rounded-lg p-3 border border-spiritual-gold/40 text-xs flex-shrink-0">
-      <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+    <div
+      style={{
+        margin: '6px 0 10px 0',
+        backgroundColor: '#FAF6EE',
+        borderRadius: '8px',
+        padding: '10px 14px',
+        border: '1px solid rgba(212, 175, 55, 0.45)',
+        fontSize: '11px',
+        flexShrink: 0,
+        letterSpacing: 'normal',
+      }}
+    >
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '24px', rowGap: '6px' }}>
         {/* Left Column */}
-        <div className="space-y-1">
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[10px] uppercase font-bold text-neutral-500 whitespace-nowrap">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, color: '#6b7280', whiteSpace: 'nowrap' }}>
               Pooja / ಪೂಜೆ:
             </span>
-            <span className="font-bold text-spiritual-maroon text-xs font-kannada break-words">
+            <span style={{ fontWeight: 800, color: '#7B1113', fontSize: '11.5px', fontFamily: "'Noto Sans Kannada', sans-serif", wordBreak: 'break-word' }}>
               {details.poojaName}
             </span>
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[10px] uppercase font-bold text-neutral-500 whitespace-nowrap">
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, color: '#6b7280', whiteSpace: 'nowrap' }}>
               Date & Time / ದಿನಾಂಕ & ಸಮಯ:
             </span>
-            <span className="font-semibold text-neutral-800 text-xs">
+            <span style={{ fontWeight: 700, color: '#1f2937', fontSize: '11px' }}>
               {details.poojaDate} • {details.poojaTime}
             </span>
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[10px] uppercase font-bold text-neutral-500 whitespace-nowrap">
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, color: '#6b7280', whiteSpace: 'nowrap' }}>
               Yajamana / ಯಜಮಾನರು:
             </span>
-            <span className="font-bold text-spiritual-maroon text-xs font-kannada break-words">
+            <span style={{ fontWeight: 800, color: '#7B1113', fontSize: '11.5px', fontFamily: "'Noto Sans Kannada', sans-serif", wordBreak: 'break-word' }}>
               {details.personName}
             </span>
           </div>
         </div>
 
         {/* Right Column */}
-        <div className="space-y-1">
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[10px] uppercase font-bold text-neutral-500 whitespace-nowrap">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, color: '#6b7280', whiteSpace: 'nowrap' }}>
               Location / ಸ್ಥಳ:
             </span>
-            <span className="font-semibold text-neutral-800 text-xs break-words">
+            <span style={{ fontWeight: 700, color: '#1f2937', fontSize: '11px', wordBreak: 'break-word' }}>
               {details.location || 'Bangalore, Karnataka'}
             </span>
           </div>
           {(details.gothra || details.nakshatra) && (
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-[10px] uppercase font-bold text-neutral-500 whitespace-nowrap">
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, color: '#6b7280', whiteSpace: 'nowrap' }}>
                 Gothra & Nakshatra:
               </span>
-              <span className="font-semibold text-neutral-800 text-xs break-words">
+              <span style={{ fontWeight: 700, color: '#1f2937', fontSize: '11px', wordBreak: 'break-word' }}>
                 {[details.gothra, details.nakshatra].filter(Boolean).join(' • ')}
               </span>
             </div>
           )}
           {details.contactNumber && (
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-[10px] uppercase font-bold text-neutral-500 whitespace-nowrap">
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, color: '#6b7280', whiteSpace: 'nowrap' }}>
                 Contact / ದೂರವಾಣಿ:
               </span>
-              <span className="font-semibold text-neutral-800 text-xs">
+              <span style={{ fontWeight: 700, color: '#1f2937', fontSize: '11px' }}>
                 {details.contactNumber}
               </span>
             </div>
@@ -395,11 +558,11 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
       {/* Optional Notes Row */}
       {details.notes && (
-        <div className="mt-1.5 pt-1.5 border-t border-spiritual-gold/25 flex items-baseline gap-1.5">
-          <span className="text-[10px] uppercase font-bold text-neutral-500 whitespace-nowrap">
+        <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px solid rgba(212, 175, 55, 0.25)', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+          <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, color: '#6b7280', whiteSpace: 'nowrap' }}>
             Notes / ಟಿಪ್ಪಣಿ:
           </span>
-          <span className="text-xs text-neutral-700 italic break-words">
+          <span style={{ fontSize: '11px', color: '#4b5563', fontStyle: 'italic', wordBreak: 'break-word' }}>
             {details.notes}
           </span>
         </div>
@@ -407,71 +570,228 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
     </div>
   );
 
-  // 5-Column Samagri Table with Checkbox / Status Indicator
+  // 5-Column Samagri Table with fixed table layout and zero column overflow
   const renderSamagriTable = (page: PageSlice) => (
-    <div className="flex-1 flex flex-col min-h-0">
-      {/* Section Header on Page 1 */}
+    <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      {/* Section Sub-heading on Page 1 */}
       {page.isFirstPage && (
-        <div className="flex items-center justify-between mb-1.5 flex-shrink-0">
-          <h4 className="font-serif font-bold text-xs text-spiritual-maroon tracking-wide">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', flexShrink: 0 }}>
+          <h4 style={{ fontFamily: "'Cinzel', Georgia, serif", fontWeight: 800, fontSize: '11.5px', color: '#7B1113', margin: 0 }}>
             REQUIRED SAMAGRI CHECKLIST / ಅಗತ್ಯ ಪೂಜಾ ಸಾಮಗ್ರಿಗಳು
           </h4>
-          <span className="text-[11px] font-bold text-spiritual-maroon bg-spiritual-saffron/15 border border-spiritual-saffron/30 px-2 py-0.5 rounded-md">
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#7B1113',
+              backgroundColor: '#FFE0B2',
+              border: '1px solid #FFB74D',
+              padding: '2px 8px',
+              borderRadius: '4px',
+            }}
+          >
             {selectedItems.length} Items Total
           </span>
         </div>
       )}
 
-      {/* Table with fixed calculated column widths & explicit checkboxes */}
-      <table className="w-full text-left text-xs border-collapse border border-neutral-300">
+      {/* Table strictly obeying 100% width via table-layout: fixed */}
+      <table
+        style={{
+          width: '100%',
+          tableLayout: 'fixed',
+          borderCollapse: 'collapse',
+          border: '1px solid #d1d5db',
+          letterSpacing: 'normal',
+          boxSizing: 'border-box',
+        }}
+      >
         <thead>
-          <tr className="bg-gradient-to-r from-spiritual-maroon to-spiritual-saffron-700 text-white font-serif">
-            <th style={{ width: '8%' }} className="py-2 px-2 text-center text-[11px] font-bold border-r border-white/20">
+          <tr
+            style={{
+              background: 'linear-gradient(90deg, #7B1113 0%, #BF360C 100%)',
+              color: '#ffffff',
+            }}
+          >
+            <th
+              style={{
+                width: '6%',
+                padding: '6px 4px',
+                textAlign: 'center',
+                fontSize: '11px',
+                fontWeight: 700,
+                borderRight: '1px solid rgba(255,255,255,0.2)',
+                verticalAlign: 'middle',
+              }}
+            >
               No.
             </th>
-            <th style={{ width: '8%' }} className="py-2 px-1 text-center text-[11px] font-bold border-r border-white/20">
+            <th
+              style={{
+                width: '8%',
+                padding: '6px 4px',
+                textAlign: 'center',
+                fontSize: '11px',
+                fontWeight: 700,
+                borderRight: '1px solid rgba(255,255,255,0.2)',
+                verticalAlign: 'middle',
+              }}
+            >
               Status
             </th>
-            <th style={{ width: '38%' }} className="py-2 px-3 text-left text-[11px] font-bold border-r border-white/20">
+            <th
+              style={{
+                width: '38%',
+                padding: '6px 8px',
+                textAlign: 'left',
+                fontSize: '11px',
+                fontWeight: 700,
+                borderRight: '1px solid rgba(255,255,255,0.2)',
+                verticalAlign: 'middle',
+              }}
+            >
               English Item Name
             </th>
-            <th style={{ width: '32%' }} className="py-2 px-3 text-left text-[11px] font-bold border-r border-white/20 font-kannada">
+            <th
+              style={{
+                width: '32%',
+                padding: '6px 8px',
+                textAlign: 'left',
+                fontSize: '11.5px',
+                fontWeight: 700,
+                fontFamily: "'Noto Sans Kannada', system-ui, sans-serif",
+                borderRight: '1px solid rgba(255,255,255,0.2)',
+                verticalAlign: 'middle',
+              }}
+            >
               ಕನ್ನಡ ಹೆಸರು (Kannada Name)
             </th>
-            <th style={{ width: '14%' }} className="py-2 px-2 text-right text-[11px] font-bold">
+            <th
+              style={{
+                width: '16%',
+                padding: '6px 8px',
+                textAlign: 'right',
+                fontSize: '11px',
+                fontWeight: 700,
+                verticalAlign: 'middle',
+              }}
+            >
               Quantity / ಪ್ರಮಾಣ
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-neutral-200">
+        <tbody>
           {page.items.map(({ item: sel, globalIndex }) => {
             const isEven = globalIndex % 2 === 0;
             return (
               <tr
                 key={sel.item.id || globalIndex}
-                className={isEven ? 'bg-white' : 'bg-spiritual-cream-50'}
-                style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                style={{
+                  backgroundColor: isEven ? '#ffffff' : '#FAF6EE',
+                  pageBreakInside: 'avoid',
+                  breakInside: 'avoid',
+                  borderBottom: '1px solid #e5e7eb',
+                }}
               >
                 {/* 1. Item Number */}
-                <td style={{ width: '8%' }} className="py-1.5 px-2 text-center font-bold text-neutral-500 border-r border-neutral-200 text-[11px]">
+                <td
+                  style={{
+                    width: '6%',
+                    padding: '5px 4px',
+                    textAlign: 'center',
+                    fontWeight: 700,
+                    fontSize: '11px',
+                    color: '#6b7280',
+                    borderRight: '1px solid #e5e7eb',
+                    verticalAlign: 'middle',
+                  }}
+                >
                   {globalIndex + 1}
                 </td>
+
                 {/* 2. Checkbox / Selection Indicator */}
-                <td style={{ width: '8%' }} className="py-1.5 px-1 text-center border-r border-neutral-200">
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded bg-emerald-700 text-white text-[10px] font-extrabold shadow-xs">
+                <td
+                  style={{
+                    width: '8%',
+                    padding: '5px 4px',
+                    textAlign: 'center',
+                    borderRight: '1px solid #e5e7eb',
+                    verticalAlign: 'middle',
+                  }}
+                >
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '4px',
+                      backgroundColor: '#047857',
+                      color: '#ffffff',
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      lineHeight: 1,
+                    }}
+                  >
                     ✓
                   </span>
                 </td>
+
                 {/* 3. English Item Name */}
-                <td style={{ width: '38%' }} className="py-1.5 px-3 font-semibold text-neutral-900 border-r border-neutral-200 text-[11px] break-words">
+                <td
+                  style={{
+                    width: '38%',
+                    padding: '5px 8px',
+                    textAlign: 'left',
+                    fontWeight: 600,
+                    fontSize: '11px',
+                    color: '#111827',
+                    borderRight: '1px solid #e5e7eb',
+                    verticalAlign: 'middle',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    lineHeight: 1.3,
+                  }}
+                >
                   {sel.item.nameEnglish}
                 </td>
+
                 {/* 4. Kannada Item Name */}
-                <td style={{ width: '32%' }} className="py-1.5 px-3 font-bold text-spiritual-maroon border-r border-neutral-200 font-kannada text-[12px] break-words">
+                <td
+                  style={{
+                    width: '32%',
+                    padding: '5px 8px',
+                    textAlign: 'left',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    color: '#7B1113',
+                    fontFamily: "'Noto Sans Kannada', system-ui, sans-serif",
+                    borderRight: '1px solid #e5e7eb',
+                    verticalAlign: 'middle',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    lineHeight: 1.4,
+                  }}
+                >
                   {sel.item.nameKannada}
                 </td>
+
                 {/* 5. Quantity */}
-                <td style={{ width: '14%' }} className="py-1.5 px-2 text-right font-bold text-neutral-800 text-[11px] break-words">
+                <td
+                  style={{
+                    width: '16%',
+                    padding: '5px 8px',
+                    textAlign: 'right',
+                    fontWeight: 700,
+                    fontSize: '11px',
+                    color: '#1f2937',
+                    verticalAlign: 'middle',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    lineHeight: 1.3,
+                  }}
+                >
                   {sel.quantity || sel.item.defaultQuantity || '—'}
                 </td>
               </tr>
@@ -484,19 +804,46 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
   // Footer for Each Page
   const renderPageFooter = (page: PageSlice) => (
-    <div className="mt-auto pt-3 border-t border-spiritual-gold/40 flex-shrink-0 text-center">
+    <div
+      style={{
+        marginTop: 'auto',
+        paddingTop: '8px',
+        borderTop: '1px solid rgba(212, 175, 55, 0.45)',
+        flexShrink: 0,
+        textAlign: 'center',
+        width: '100%',
+        letterSpacing: 'normal',
+      }}
+    >
       {page.isLastPage && (
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <Flame className="w-3.5 h-3.5 text-spiritual-saffron" />
-          <p className="font-kannada font-bold text-xs text-spiritual-maroon">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '4px' }}>
+          <Flame style={{ width: '13px', height: '13px', color: '#E65100' }} />
+          <p
+            style={{
+              fontFamily: "'Noto Sans Kannada', sans-serif",
+              fontWeight: 800,
+              fontSize: '12px',
+              color: '#7B1113',
+              margin: 0,
+            }}
+          >
             || ಲೋಕಾಃ ಸಮಸ್ತಾಃ ಸುಖಿನೋ ಭವಂತು ||
           </p>
-          <Flame className="w-3.5 h-3.5 text-spiritual-saffron" />
+          <Flame style={{ width: '13px', height: '13px', color: '#E65100' }} />
         </div>
       )}
-      <div className="flex items-center justify-between text-[9.5px] text-neutral-500">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '9.5px',
+          color: '#6b7280',
+          fontFamily: "'Inter', sans-serif",
+        }}
+      >
         <span>Shree Prashanth Bhat • Traditional Vedic Priest • 9242359692</span>
-        <span className="font-semibold text-neutral-700">
+        <span style={{ fontWeight: 700, color: '#374151' }}>
           Page {page.pageNumber} of {page.totalPages}
         </span>
       </div>
@@ -578,7 +925,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
           {pages.map((page) => (
             <div
               key={`preview-page-${page.pageNumber}`}
-              className="pdf-a4-page-preview pdf-a4-page bg-white shadow-xl text-neutral-900 font-sans border border-spiritual-gold/30 flex flex-col relative"
+              className="pdf-a4-page-preview pdf-a4-page bg-white shadow-xl text-neutral-900 border border-spiritual-gold/30 flex flex-col relative"
               style={{
                 width: '794px',
                 minWidth: '794px',
@@ -587,36 +934,34 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                 minHeight: '1123px',
                 maxHeight: '1123px',
                 boxSizing: 'border-box',
-                padding: '32px 36px',
+                padding: '28px 36px',
                 backgroundColor: '#ffffff',
                 overflow: 'hidden',
                 flexShrink: 0,
+                letterSpacing: 'normal',
               }}
             >
               {/* Top Accent Line */}
-              <div className="h-1.5 bg-gradient-to-r from-spiritual-maroon via-spiritual-gold to-spiritual-saffron rounded-t-sm mb-3 flex-shrink-0" />
+              <div
+                style={{
+                  height: '5px',
+                  background: 'linear-gradient(90deg, #7B1113 0%, #D4AF37 50%, #E65100 100%)',
+                  borderRadius: '2px 2px 0 0',
+                  marginBottom: '10px',
+                  flexShrink: 0,
+                }}
+              />
 
               {/* Header */}
               {page.isFirstPage ? renderPage1Header() : renderSubsequentHeader()}
 
-              {/* Document Title Banner on Page 1 */}
-              {page.isFirstPage && (
-                <div className="text-center my-2.5 flex-shrink-0">
-                  <div className="inline-block bg-spiritual-saffron-50 border border-spiritual-saffron/40 px-4 py-1.5 rounded-full">
-                    <h3 className="font-serif font-black text-xs text-spiritual-maroon tracking-wider">
-                      POOJA DETAILS & SAMAGRI CHECKLIST
-                    </h3>
-                    <h4 className="font-kannada font-bold text-xs text-spiritual-saffron-dark">
-                      ಪೂಜೆಯ ವಿವರಗಳು ಹಾಗೂ ಸಾಮಗ್ರಿಗಳ ಪಟ್ಟಿ
-                    </h4>
-                  </div>
-                </div>
-              )}
+              {/* Both English & Kannada Section Headings in Rounded Cream Box */}
+              {page.isFirstPage && renderSectionHeading()}
 
               {/* 2-Column Details Box on Page 1 */}
               {page.isFirstPage && renderPoojaDetailsBox()}
 
-              {/* Samagri Table with Checkboxes */}
+              {/* 5-Column Samagri Table with Checkboxes */}
               {renderSamagriTable(page)}
 
               {/* Footer */}
